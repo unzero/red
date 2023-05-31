@@ -1,0 +1,10 @@
+{% extends "base" %}
+
+{% block content %}
+<h1>Success!</h1>
+<h3>Submission Data</h3>
+{{ hostname }}
+<a href="/">&lt; Submit Another</a>
+{% endblock content %}
+
+

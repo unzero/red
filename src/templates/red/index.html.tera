@@ -1,0 +1,23 @@
+{% extends "base" %}
+
+{% block content %}
+<div> 
+    <h1>Welcome to ReD please enter your login information!</h1>
+</div>
+
+<div>
+    <form action="/red" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="hostname" class="form-label">Hostname</label>
+        <input type="text" class="form-control" id="hostname" name="hostname" > 
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" >
+    </div>
+
+    <button type="submit" class="btn btn-primary">Connect</button>
+    </form>
+</div>
+{% endblock content %}
