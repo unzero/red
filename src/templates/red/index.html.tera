@@ -6,10 +6,21 @@
 </div>
 
 <div>
+    {% if "login" in errors %}
+    <div> 
+        <h3> Could not login with the given data. </h3> 
+    </div> 
+    {% endif %}
+
     <form action="/red" method="post" enctype="multipart/form-data">
     <div class="mb-3">
-        <label for="hostname" class="form-label">Hostname</label>
-        <input type="text" class="form-control" id="hostname" name="hostname" > 
+        <label for="host" class="form-label">Host</label>
+        <input type="text" class="form-control" id="host" name="host" > 
+    </div>
+
+    <div class="mb-3">
+        <label for="user" class="form-label">Username</label>
+        <input type="text" class="form-control" id="user" name="user" > 
     </div>
 
     <div class="mb-3">

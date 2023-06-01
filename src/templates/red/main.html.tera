@@ -3,7 +3,9 @@
 {% block content %}
 <h1>Success!</h1>
 <h3>Submission Data</h3>
-{{ hostname }}
+<h3>{{ host }}</h3>
+<h3>{{ user }}</h3>
+<h3>{{ password }}</h3>
 <a href="/">&lt; Submit Another</a>
 {% endblock content %}
 

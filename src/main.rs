@@ -4,6 +4,7 @@ use rocket_dyn_templates::Template;
 
 //Internal imports 
 mod web;
+mod lib;
 
 #[launch]
 fn rocket() -> _ {
