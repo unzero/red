@@ -6,12 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "=0.5.0-rc.3"
 ssh2 = "0.9.4"
-
-[dependencies.rocket_dyn_templates]
-version = "=0.1.0-rc.3"
-features = ["tera"]
-
-
-
+tera = "1"
+actix-web = "4"
+serde = { version = "1", features = ["derive"]}
+serde_json = "1"
+env_logger = "0.10"

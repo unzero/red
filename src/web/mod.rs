@@ -1,4 +1,4 @@
-//within this file I put all logic for web application
+/*//within this file I put all logic for web application
 use rocket::{Rocket, Build};
 
 //each module is an application 
@@ -11,5 +11,23 @@ pub fn web(instance: Rocket<Build>) -> Rocket<Build> {
         .mount("/", routes![index])
         .mount("/", routes![red_index])
         .mount("/", routes![red_submit])
-}
+}*/
 
+//within this file I put all logic for web application
+use actix_web::web;
+
+//each module is an application 
+pub mod red;
+pub mod utils;
+use crate::web::red::{index, red_submit};
+
+pub fn get_configuration(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/")
+            .route(web::get().to(index)),
+    );
+    cfg.service(
+        web::resource("/red")
+            .route(web::post().to(red_submit)),
+    );
+}
