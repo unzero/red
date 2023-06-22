@@ -78,9 +78,12 @@ fn redirect(location: &str) -> HttpResponse{
                 .insert_header(( actix_web::http::header::LOCATION, location, )).body("ok")
 }
 
-pub async fn red_logout(identity: Option<Identity>) -> HttpResponse {
+pub async fn red_logout(identity: Option<Identity>,
+                        red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
     match identity {
         Some(id) => {
+            let uuid_str = id.id().unwrap();
+            let red_user = red_users.lock().unwrap().remove(&uuid_str);
             id.logout();
         },
         _ => {},
