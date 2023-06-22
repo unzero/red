@@ -1,9 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<nav class="navbar bg-dark border-bottom border-bottom-dark fix-top" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand">Red Ssh</a>
+            
+        <form class="d-flex" action="/logout" method="post" >
+            <button class="btn btn-outline-success" type="submit" name="logout">Logout</button>
+        </form>
+    </div>
+</nav>
+
+
 <h1>Success!</h1>
-<h3>Submission Data</h3>
-<h3>{{ identity }}</h3>
+
+
+<nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom" data-bs-theme="dark">
+    <div class="container-fluid">
+        <h6 class="navbar-text">Connected to {{host}} as {{user}}.</h6>
+    </div>
+</nav>
+
 {% endblock content %}
 
 
