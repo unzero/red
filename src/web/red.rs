@@ -4,29 +4,31 @@ use serde::{Deserialize, Serialize};
 use actix_identity::Identity;
 use uuid::Uuid;
 
-use crate::lib::connection::check_connection;
+use crate::lib::connection::{check_connection, SshInformation};
 use crate::lib::clients::RedUser;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct SshInformation{
+pub struct RedLogin{
     host: String,
     user: String,
     password: String,
 }
 
-pub async fn red_login(form: actix_web::web::Form<SshInformation>,
+pub async fn red_login(form: actix_web::web::Form<RedLogin>,
                         templates: actix_web::web::Data<tera::Tera>,
                         red_users: actix_web::web::Data<crate::RedUsers>,
                         request: HttpRequest) -> HttpResponse {
-    match check_connection(form.host.as_str(), 22, form.user.as_str(), form.password.as_str()) {
+    let ssh_info = SshInformation::new(form.host.clone(), 22, form.user.clone(), form.password.clone());
+    match check_connection(ssh_info) {
         true => {
             let id = Uuid::new_v4();
-            Identity::login(&request.extensions(), id.to_string());
+            let _ = Identity::login(&request.extensions(), id.to_string());
             //TODO: hash the password to protect it 
             red_users.lock().unwrap().insert( id.to_string(), RedUser::new(
-                    form.host.clone(), 
-                    form.user.clone(), 
-                    form.password.clone()) );
+                        form.host.clone(), 
+                        form.user.clone(), 
+                        form.password.clone()) 
+                    );
             redirect("/red")
         },
         false => {
@@ -41,9 +43,11 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
     match identity {
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let red_user = red_users.lock().unwrap().get(&uuid_str).unwrap().clone();
+            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().execute_file();
+            let host = red_users.lock().unwrap().get(&uuid_str).unwrap().host.clone();
+            let user = red_users.lock().unwrap().get(&uuid_str).unwrap().user.clone();
             render_template("red/home.html", crate::context!({"identity": id.id().unwrap(), 
-                "host": red_user.host, "user": red_user.user}), templates)
+                "host": host, "user": user, "files": files}), templates)
         },
         _ => {
             redirect("/")
@@ -54,7 +58,7 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
     match identity {
-        Some(id) => {
+        Some(_) => {
             redirect("/red")
         },
         _ => {
