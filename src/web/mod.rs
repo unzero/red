@@ -20,4 +20,12 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(red_login))
             .route(web::get().to(home)),
     );
+
+    cfg.service(
+        web::resource("/open_file")
+            .route(web::post().to(red_login))
+            .route(web::get().to(open_file)),
+    );
 }
+
+

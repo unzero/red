@@ -95,4 +95,10 @@ pub async fn red_logout(identity: Option<Identity>,
     redirect("/red")
 }
 
+pub async fn open_file(request: HttpRequest) -> HttpResponse {
+    HttpResponse::Ok().json( "hello from rust" )
+}
+
+
+
 
