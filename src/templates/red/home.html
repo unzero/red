@@ -58,9 +58,7 @@
     }
 
     function open_file(filename){
-        console.log(filename);
         var data = {'filename': filename};
-        console.log(data);
         $.ajax({
             type: 'POST', 
             contentType: 'application/json',
@@ -71,12 +69,27 @@
     }
     
     function load_file(response){
-        console.log(response);
         $('#div_editor').html(response['file-content']);
     }
 
     function change_directory(directory){
-        /*TODO*/
+        var data = {'filename': directory};
+        $.ajax({
+            type: 'POST', 
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            url: 'change_directory',
+            success: process_directories,
+        });
+    }
+
+    function process_directories(response){
+        var files = [['..', 'directory']]; 
+        response['files'].forEach((file) => {
+            files.push(file.replaceAll(' ', '').split(':'));
+
+        });
+        update_div_files(files);
     }
 
 

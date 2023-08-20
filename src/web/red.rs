@@ -116,4 +116,20 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
     
 }
 
+pub async fn change_directory(target: actix_web::web::Json<Redfile>,
+                       identity: Option<Identity>, 
+                       red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+    match identity { 
+        Some(id) => {
+            let uuid_str = id.id().unwrap();
+            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().change_directory(target.filename.clone());
+            HttpResponse::Ok().json( crate::json_response!({"files": files}) )
+        },
+        _ => {
+            redirect("/")
+        },
+    }
+    
+}
+
 

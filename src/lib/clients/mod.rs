@@ -57,6 +57,11 @@ impl RedUser {
             &filepath.to_owned()).unwrap()
     }
 
+    pub fn change_directory(&mut self, target: String) -> Vec<String> {
+        self.execute_cd(target);
+        self.execute_file()
+    }
+
 
 }
 
