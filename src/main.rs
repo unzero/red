@@ -14,10 +14,12 @@ mod lib;
 
 use crate::lib::clients::RedUsers;
 
-const ONE_MINUTE: Duration = Duration::minutes(1);
+const ONE_MINUTE: Duration = Duration::minutes(5);
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    /* debug flag */
+    std::env::set_var("RUST_BACKTRACE", "1");
 
     env_logger::init_from_env(Env::default().default_filter_or("trace"));
     let private_key = actix_web::cookie::Key::generate();

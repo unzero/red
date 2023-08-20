@@ -122,6 +122,10 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
+            log::info!("{:?}", red_users);
+            for user in red_users.lock().unwrap().iter() {
+                log::info!("{:?}", user);
+            }
             let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().change_directory(target.filename.clone());
             HttpResponse::Ok().json( crate::json_response!({"files": files}) )
         },

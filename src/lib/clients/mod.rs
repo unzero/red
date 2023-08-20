@@ -5,6 +5,7 @@ use ssh2::Channel;
 const SSH_PORT :i32 = 22;
 pub type RedUsers = Arc<Mutex<HashMap<String, RedUser>>>;
 
+#[derive(Debug)]
 pub struct RedUser {
     pub host: String, 
     pub user: String, 
@@ -17,7 +18,6 @@ impl RedUser {
         let current_path = connection::get_initial_path(
                 connection::SshInformation::new(host.clone(), SSH_PORT, user.clone(), pass.clone())
             ).unwrap().replace('\n', "");
-        print!("Initial path: {}\n", current_path);
         Self { host, user, pass, current_path}
     }
 
@@ -37,7 +37,6 @@ impl RedUser {
         let cmd = format!("cd {}; cd {}; pwd", self.current_path, location);
         let partial_result = self.execute_cmd(&cmd.to_owned());
         self.current_path = partial_result.replace("\n", "");
-        print!("\n new path {} {}\n", self.current_path, cmd);
         "Ok".to_string()
     }
 
@@ -45,7 +44,6 @@ impl RedUser {
         let cmd = format!("cd {}; file *", self.current_path);
         let partial_result = self.execute_cmd(&cmd.to_owned());
         let files = partial_result.split("\n").map(|s| String::from(s)).collect();
-
         //TODO: Split and other logic
         files
     }
@@ -61,7 +59,6 @@ impl RedUser {
         self.execute_cd(target);
         self.execute_file()
     }
-
 
 }
 
