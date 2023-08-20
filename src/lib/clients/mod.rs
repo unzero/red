@@ -50,6 +50,13 @@ impl RedUser {
         files
     }
 
+    pub fn read_file_content(&mut self, filename: String) -> String {
+        let filepath = format!("{}/{}", self.current_path, filename);
+        connection::read_file_content(
+            self.to_ssh_information(), 
+            &filepath.to_owned()).unwrap()
+    }
+
 
 }
 

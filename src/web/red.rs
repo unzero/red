@@ -14,6 +14,11 @@ pub struct RedLogin{
     password: String,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Redfile {
+    filename: String,
+}
+
 pub async fn red_login(form: actix_web::web::Form<RedLogin>,
                         templates: actix_web::web::Data<tera::Tera>,
                         red_users: actix_web::web::Data<crate::RedUsers>,
@@ -95,10 +100,20 @@ pub async fn red_logout(identity: Option<Identity>,
     redirect("/red")
 }
 
-pub async fn open_file(request: HttpRequest) -> HttpResponse {
-    HttpResponse::Ok().json( "hello from rust" )
+pub async fn open_file(file: actix_web::web::Json<Redfile>,
+                       identity: Option<Identity>, 
+                       red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+    match identity { 
+        Some(id) => {
+            let uuid_str = id.id().unwrap();
+            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(file.filename.clone());
+            HttpResponse::Ok().json( crate::json_response!({"file-content": file_content}) )
+        },
+        _ => {
+            redirect("/")
+        },
+    }
+    
 }
-
-
 
 

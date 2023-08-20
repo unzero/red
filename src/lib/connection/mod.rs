@@ -1,6 +1,7 @@
 use std::net::TcpStream; 
 use ssh2::{Session, Channel};
-use std::io::prelude::*;
+use std::{io::prelude::*, path::Path};
+
 
 pub struct SshInformation {
     host: String, 
@@ -81,6 +82,20 @@ fn execute_on_shell(channel: &mut Channel, cmd: &str) -> String {
     channel.wait_eof().unwrap();
     print!("new fhs call to execute on shell");
     result
+}
+
+pub fn read_file_content(user_data: SshInformation, filepath: &str) -> Result<String, &'static str>{
+    let mut sess = get_auth_session(user_data).unwrap();
+    let (mut remote_file, stat) = sess.scp_recv(Path::new(filepath)).unwrap();
+    /*Reading the file*/
+    let mut contents = Vec::new();
+    remote_file.read_to_end(&mut contents).unwrap();
+    /*Closing the file*/
+    remote_file.send_eof().unwrap();
+    remote_file.wait_eof().unwrap();
+    remote_file.close().unwrap();
+    remote_file.wait_close().unwrap();
+    Ok(String::from_utf8(contents).unwrap())
 }
 
 

@@ -14,8 +14,8 @@
 
 <div class="row"> 
     <!-- add it latter border-right border --> 
-    <div class="sidebar col-md-2" id="div_files">
-        <ul class="nav flex-column" id="ul_files">
+    <div class="sidebar col-md-1 navbar-nav-scroll" id="div_files">
+        <ul class="nav flex-column " id="ul_files">
         </ul>
     </div> 
 
@@ -58,15 +58,21 @@
     }
 
     function open_file(filename){
+        console.log(filename);
+        var data = {'filename': filename};
+        console.log(data);
         $.ajax({
-            data: {'filename': filename},
+            type: 'POST', 
+            contentType: 'application/json',
+            data: JSON.stringify(data),
             url: 'open_file',
             success: load_file,
         });
     }
     
-    function load_file(file_content){
-        alert(file_content);
+    function load_file(response){
+        console.log(response);
+        $('#div_editor').html(response['file-content']);
     }
 
     function change_directory(directory){
