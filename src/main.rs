@@ -23,10 +23,11 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(Env::default().default_filter_or("trace"));
     let private_key = actix_web::cookie::Key::generate();
+    let red_users: RedUsers = Arc::new(Mutex::new(HashMap::new()));
+    let users_map_state = actix_web::web::Data::new(red_users);
 
-    HttpServer::new(move || {
+    HttpServer::new( move || {
         let tera = Tera::new("src/templates/**/*.html").unwrap();
-        let red_users: RedUsers = Arc::new(Mutex::new(HashMap::new()));
         App::new()
             //login 
             .wrap(Logger::default())
@@ -40,7 +41,7 @@ async fn main() -> std::io::Result<()> {
                 .build(),
             )
             .app_data(actix_web::web::Data::new(tera))
-            .app_data(actix_web::web::Data::new(red_users))
+            .app_data(users_map_state.clone())
             .configure(web::get_configuration)
     })
     .bind(("127.0.0.1", 8080))?
