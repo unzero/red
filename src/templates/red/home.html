@@ -20,7 +20,6 @@
     </div> 
 
     <div class="col-md-10" id="div_editor" class="background-color: #ABBAEA;">
-        Open a file.
     </div> 
 </div>
 
@@ -69,7 +68,11 @@
     }
     
     function load_file(response){
-        $('#div_editor').html(response['file-content']);
+        var h_div = $("#div_editor");
+        var editor = monaco.editor.create(h_div, {
+            value: response['file-content'],
+            language: 'javascript'
+        });
     }
 
     function change_directory(directory){

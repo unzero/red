@@ -1,6 +1,5 @@
 use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
 use crate::lib::connection;
-use ssh2::Channel;
 
 const SSH_PORT :i32 = 22;
 pub type RedUsers = Arc<Mutex<HashMap<String, RedUser>>>;

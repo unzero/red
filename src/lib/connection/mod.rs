@@ -1,5 +1,5 @@
 use std::net::TcpStream; 
-use ssh2::{Session, Channel};
+use ssh2::Session;
 use std::{io::prelude::*, path::Path};
 
 
@@ -40,17 +40,6 @@ fn get_auth_session(user_data: SshInformation) -> Result<Session, &'static str> 
     Ok(sess)
 }
 
-pub fn get_channel(user_data: SshInformation) -> Result<Channel, &'static str> {
-    let sess = match get_auth_session(user_data) {
-        Ok(x) => x,
-        _ => return Err("Something were wrong!")
-    };
-    match sess.channel_session() {
-        Ok(x) => Ok(x),
-        _ => Err("Something were wrong!")
-    }
-}
-
 pub fn check_connection(user_data: SshInformation) -> bool {
     get_auth_session(user_data).is_ok()
 }
@@ -73,20 +62,9 @@ pub fn execute(user_data: SshInformation, cmd: &str) -> Result<String, &'static 
     Ok(result)
 }
 
-fn execute_on_shell(channel: &mut Channel, cmd: &str) -> String {
-    print!("new call to execute on shell");
-    let mut result = String::new();
-    channel.write_all(cmd.as_bytes()).unwrap();
-    channel.send_eof().unwrap();
-    channel.read_to_string(&mut result);
-    channel.wait_eof().unwrap();
-    print!("new fhs call to execute on shell");
-    result
-}
-
 pub fn read_file_content(user_data: SshInformation, filepath: &str) -> Result<String, &'static str>{
-    let mut sess = get_auth_session(user_data).unwrap();
-    let (mut remote_file, stat) = sess.scp_recv(Path::new(filepath)).unwrap();
+    let sess = get_auth_session(user_data).unwrap();
+    let (mut remote_file, _) = sess.scp_recv(Path::new(filepath)).unwrap();
     /*Reading the file*/
     let mut contents = Vec::new();
     remote_file.read_to_end(&mut contents).unwrap();
