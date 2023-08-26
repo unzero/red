@@ -1,33 +1,44 @@
 {% extends "base.html" %}
 
+{% block header %}
+
+    <script>
+        var require = { paths: { vs: '/static/node_modules/monaco-editor/min/vs' } };
+    </script>
+
+    <link rel="stylesheet" href="/static/node_modules/monaco-editor/min/vs/editor/editor.main.css">
+    <script src="/static/node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+
+{% endblock header%}
+
 {% block content %}
 
-<nav class="navbar bg-dark border-bottom border-bottom-dark fix-top" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand">Red Ssh</a>
-            
-        <form class="d-flex" action="/logout" method="post" >
-            <button class="btn btn-outline-success" type="submit" name="logout">Logout</button>
-        </form>
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fix-top" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">Red Ssh</a>
+                
+            <form class="d-flex" action="/logout" method="post" >
+                <button class="btn btn-outline-success" type="submit" name="logout">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="row"> 
+        <!-- add it latter border-right border --> 
+        <div class="sidebar col-md-1 navbar-nav-scroll" id="div_files">
+            <ul class="nav flex-column " id="ul_files"></ul>
+        </div> 
+
+        <div class="col-md-10" id="div_editor" class="background-color: #ABBAEA;"></div> 
     </div>
-</nav>
 
-<div class="row"> 
-    <!-- add it latter border-right border --> 
-    <div class="sidebar col-md-1 navbar-nav-scroll" id="div_files">
-        <ul class="nav flex-column " id="ul_files">
-        </ul>
-    </div> 
-
-    <div class="col-md-10" id="div_editor" class="background-color: #ABBAEA;">
-    </div> 
-</div>
-
-<nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom" data-bs-theme="dark">
-    <div class="container-fluid">
-        <h6 class="navbar-text">Connected to {{host}} as {{user}}.</h6>
-    </div>
-</nav>
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom" data-bs-theme="dark">
+        <div class="container-fluid">
+            <h6 class="navbar-text">Connected to {{host}} as {{user}}.</h6>
+        </div>
+    </nav>
 
 {% endblock content %}
 
@@ -67,11 +78,11 @@
         });
     }
     
+
     function load_file(response){
-        var h_div = $("#div_editor");
-        var editor = monaco.editor.create(h_div, {
-            value: response['file-content'],
-            language: 'javascript'
+        $("#div_editor").html('');
+        var editor = monaco.editor.create(document.getElementById("div_editor"), {
+            value: response['file-content']
         });
     }
 

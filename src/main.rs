@@ -43,6 +43,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(actix_web::web::Data::new(tera))
             .app_data(users_map_state.clone())
             .configure(web::get_configuration)
+            .service(actix_files::Files::new("/static", "./static/").show_files_listing())
     })
     .bind(("127.0.0.1", 8080))?
     .run()
