@@ -82,8 +82,12 @@
     function load_file(response){
         $("#div_editor").html('');
         var editor = monaco.editor.create(document.getElementById("div_editor"), {
-            value: response['file-content']
+            value: response['file-content'],
+            fontSize: 16,
+            language: response['file-type'],
+            theme: 'vs-dark'
         });
+        console.log(response['file-type']);
     }
 
     function change_directory(directory){

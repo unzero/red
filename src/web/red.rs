@@ -107,7 +107,8 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
         Some(id) => {
             let uuid_str = id.id().unwrap();
             let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(file.filename.clone());
-            HttpResponse::Ok().json( crate::json_response!({"file-content": file_content}) )
+            let file_type = get_file_type(file.filename.clone());
+            HttpResponse::Ok().json( crate::json_response!({"file-content": file_content, "file-type": file_type}) )
         },
         _ => {
             redirect("/")
@@ -132,4 +133,13 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     
 }
 
-
+fn get_file_type(filename: String) -> String {
+    let ext = std::path::Path::new(&filename).
+                extension().and_then(std::ffi::OsStr::to_str).unwrap_or("text");
+    match ext { 
+        "py" => String::from("python"),
+        "rs" => String::from("rust"),
+        "js" => String::from("javascript"),
+        _ => String::from(ext)
+    }
+}
