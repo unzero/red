@@ -42,6 +42,10 @@ impl RedUser {
     pub fn execute_file(&mut self) -> Vec<String> {
         let cmd = format!("cd {}; file *", self.current_path);
         let partial_result = self.execute_cmd(&cmd.to_owned());
+        if partial_result.contains("No such file or directory") {
+            //The directory is emtpy
+            return Vec::new()
+        }
         let files = partial_result.split("\n").map(|s| String::from(s)).collect();
         //TODO: Split and other logic
         files
