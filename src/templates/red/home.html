@@ -127,14 +127,16 @@
     }
 
     function remove_files_focus(){
-        var btn_file = $('[id^="btn_file_"]');
-        for(var i=0 ; i < btn_file.length ; i++ ){
-            btn_file[i].classList.remove('active');
-        }
-        var tab_file = $('[id^="tab_file_"]');
-        for(var i=0 ; i < tab_file.length ; i++ ){
-            tab_file[i].classList.remove('active');
-            tab_file[i].classList.remove('show');
+        remove_from_classlist('btn_file_', ['active']);
+        remove_from_classlist('tab_file_', ['active', 'show']);
+    }
+
+    function remove_from_classlist(prefix, to_remove){
+        var elements = $(`[id^="${prefix}"]`);
+        for(var i=0 ; i < elements.length ; i++ ){
+            for(var j=0 ; j < to_remove.length; ++j ){
+                elements[i].classList.remove(to_remove[j]);
+            }
         }
     }
 
