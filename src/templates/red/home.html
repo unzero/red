@@ -63,13 +63,10 @@
 {% block scripts %}
 <script> 
     $(document).ready(function(){
-        var files = [['..', 'directory']]; 
-        {% for file in files %} 
-            if( '{{file}}' != ''){
-                files.push(String('{{ file | replace(from=" ", to="") }}').split(':'));
-            }
+        var files = []; 
+        {% for pair in files %} 
+            files.push(['{{pair.0}}', '{{pair.1}}']);
         {% endfor %}
-
         update_div_files(files);
     });
 
@@ -130,18 +127,10 @@
             contentType: 'application/json',
             data: JSON.stringify(data),
             url: 'change_directory',
-            success: process_directories,
+            success: function(response){
+                update_div_files(response['files']);
+            },
         });
-    }
-
-    function process_directories(response){
-        var files = [['..', 'directory']]; 
-        response['files'].forEach((file) => {
-            if( file != '' ){
-                files.push(file.replaceAll(' ', '').split(':'));
-            }
-        });
-        update_div_files(files);
     }
 
     function build_file_tab(tab_id){

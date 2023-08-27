@@ -39,16 +39,21 @@ impl RedUser {
         "Ok".to_string()
     }
 
-    pub fn execute_file(&mut self) -> Vec<String> {
+    pub fn execute_file(&mut self) -> Vec<Vec<String>> {
         let cmd = format!("cd {}; file *", self.current_path);
         let partial_result = self.execute_cmd(&cmd.to_owned());
+        let mut files = vec![vec![String::from(".."), String::from("directory")]];
         if partial_result.contains("No such file or directory") {
             //The directory is emtpy
-            return Vec::new()
+            return files;
         }
-        let files = partial_result.split("\n").map(|s| String::from(s)).collect();
-        //TODO: Split and other logic
-        files
+        for tmp_file in partial_result.split("\n")
+            .filter_map( |s| match String::from(s).len() {
+                0 => None,
+                _ => Some(String::from(s)) }) {
+            files.push(tmp_file.replace(" ", "").split(":").map(|x| String::from(x)).collect::<Vec<_>>());
+        }
+        return files
     }
 
     pub fn read_file_content(&mut self, filename: String) -> String {
@@ -58,7 +63,7 @@ impl RedUser {
             &filepath.to_owned()).unwrap()
     }
 
-    pub fn change_directory(&mut self, target: String) -> Vec<String> {
+    pub fn change_directory(&mut self, target: String) -> Vec<Vec<String>> {
         self.execute_cd(target);
         self.execute_file()
     }
