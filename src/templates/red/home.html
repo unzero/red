@@ -11,6 +11,7 @@
     <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.js"></script>
     <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 
+    <script src="/static/routines.js"></script>
 {% endblock header%}
 
 {% block content %}
@@ -107,7 +108,8 @@
     }
 
     function load_file(response){
-        remove_files_focus();
+        remove_from_classlist('btn_file_', ['active']);
+        remove_from_classlist('tab_file_', ['active', 'show']);
         var tab_id = `tab_file_${response['file-uuid']}`;
         $('#open_files_nav').append(build_file_nav(response['file-uuid'], response['filename']));
         $('#open_files_tab').append(build_file_tab(tab_id));
@@ -162,20 +164,6 @@
 
             </div>
             </li>`
-    }
-
-    function remove_files_focus(){
-        remove_from_classlist('btn_file_', ['active']);
-        remove_from_classlist('tab_file_', ['active', 'show']);
-    }
-
-    function remove_from_classlist(prefix, to_remove){
-        var elements = $(`[id^="${prefix}"]`);
-        for(var i=0 ; i < elements.length ; i++ ){
-            for(var j=0 ; j < to_remove.length; ++j ){
-                elements[i].classList.remove(to_remove[j]);
-            }
-        }
     }
 
 </script>
