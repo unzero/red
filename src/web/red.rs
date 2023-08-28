@@ -112,7 +112,7 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
                     {
                         "file-content": file_content, 
                         "file-type": file_type,
-                        "filename": file.filename.clone(),
+                        "filename": file.filename,
                         "file-uuid": file_uuid
                     }
 
