@@ -105,6 +105,7 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
+            let file_uuid = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().get_file_uuid(file.filename.clone());
             let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(file.filename.clone());
             let file_type = get_file_type(file.filename.clone());
             HttpResponse::Ok().json( crate::json_response!(
@@ -112,7 +113,7 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
                         "file-content": file_content, 
                         "file-type": file_type,
                         "filename": file.filename.clone(),
-                        "file-uuid": file.filename.clone()
+                        "file-uuid": file_uuid
                     }
 
                 ))

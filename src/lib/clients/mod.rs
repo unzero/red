@@ -1,5 +1,6 @@
 use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
 use crate::lib::connection;
+use sha2::{Sha256, Digest};
 
 const SSH_PORT :i32 = 22;
 pub type RedUsers = Arc<Mutex<HashMap<String, RedUser>>>;
@@ -57,10 +58,9 @@ impl RedUser {
     }
 
     pub fn read_file_content(&mut self, filename: String) -> String {
-        let filepath = format!("{}/{}", self.current_path, filename);
         connection::read_file_content(
             self.to_ssh_information(), 
-            &filepath.to_owned()).unwrap()
+            &self.get_full_path_to(filename).to_owned()).unwrap()
     }
 
     pub fn change_directory(&mut self, target: String) -> Vec<Vec<String>> {
@@ -68,5 +68,14 @@ impl RedUser {
         self.execute_file()
     }
 
+    fn get_full_path_to(&mut self, filename: String) -> String {
+        format!("{}/{}", self.current_path, filename)
+    }
+
+    pub fn get_file_uuid(&mut self, filename: String) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(self.get_full_path_to(filename).as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
 }
 
