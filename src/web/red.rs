@@ -5,19 +5,13 @@ use actix_identity::Identity;
 use uuid::Uuid;
 
 use crate::lib::connection::{check_connection, SshInformation};
-use crate::lib::clients::RedUser;
+use crate::lib::{clients::RedUser, files::Redfile};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RedLogin{
     host: String,
     user: String,
     password: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Redfile {
-    //TODO this attribute is no longer filename, now it is file_uuid
-    filename: String,
 }
 
 pub async fn red_login(form: actix_web::web::Form<RedLogin>,
@@ -100,21 +94,21 @@ pub async fn red_logout(identity: Option<Identity>,
     redirect("/red")
 }
 
-pub async fn open_file(file: actix_web::web::Json<Redfile>,
+pub async fn open_file(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
                        red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().query_file_uuid(file.filename.clone());
-            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(file.filename.clone());
-            let file_type = get_file_type(file.filename.clone());
+            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().query_file_uuid(target.get_uuid());
+            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(target.get_uuid());
+            let file_type = get_file_type(filename.clone());
             HttpResponse::Ok().json( crate::json_response!(
                     {
                         "file-content": file_content, 
                         "file-type": file_type,
                         "filename": filename,
-                        "file-uuid": file.filename
+                        "file-uuid": target.get_uuid()
                     }
 
                 ))
@@ -132,7 +126,7 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().change_directory(target.filename.clone());
+            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().change_directory(target.get_uuid());
             HttpResponse::Ok().json( crate::json_response!({"files": files}) )
         },
         _ => {

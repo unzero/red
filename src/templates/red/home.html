@@ -109,8 +109,7 @@
             
             return;
         }
-        /*TODO: This field is no longer filename, it is now uuid */
-        var data = {'filename': uuid};
+        var data = {'file_uuid': uuid};
         $.ajax({
             type: 'POST', 
             contentType: 'application/json',
@@ -137,7 +136,7 @@
     }
 
     function change_directory(directory){
-        var data = {'filename': directory};
+        var data = {'file_uuid': directory};
         $.ajax({
             type: 'POST', 
             contentType: 'application/json',
