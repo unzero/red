@@ -65,7 +65,11 @@
     $(document).ready(function(){
         var files = []; 
         {% for pair in files %} 
-            files.push(['{{pair.0}}', '{{pair.1}}']);
+            files.push({
+                name: '{{pair.name}}', 
+                type: '{{pair.type}}',
+                uuid: '{{pair.uuid}}'
+            });
         {% endfor %}
         update_div_files(files);
     });
@@ -74,18 +78,18 @@
         var new_content = '';
         /*file is a tuple with [name, type]*/
         files.forEach((file) => {
-            if( file[1] == 'directory' ){
+            if( file['type'] == 'directory' ){
                 new_content += `<li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover" href="javascript:change_directory('${file[0]}')">
+                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover" href="javascript:change_directory('${file['uuid']}')">
                     <svg class="bi" width="16" height="16"><use xlink:href="#directory"/></svg>
-                    ${file[0]}
+                    ${file['name']}
                     </a>
                     </li>`;
             }else{
                 new_content += `<li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover link-secondary" href="javascript:open_file('${file[0]}')"> 
+                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover link-secondary" href="javascript:open_file('${file['uuid']}')"> 
                     <svg class="bi" width="16" height="16"><use xlink:href="#file"/></svg>
-                    ${file[0]}
+                    ${file['name']}
                     </a>
                     </li>`;
             }
@@ -93,8 +97,20 @@
         $('#ul_files').html(new_content);
     }
 
-    function open_file(filename){
-        var data = {'filename': filename};
+    function open_file(uuid){
+        var e = $(`#tab_file_${uuid}`)
+        console.log(e);
+        if( e.length > 0 ){
+            remove_from_classlist('btn_file_', ['active']);
+            remove_from_classlist('tab_file_', ['active', 'show']);
+            e.addClass('active'); 
+            e.addClass('show'); 
+            $(`#btn_file_${uuid}`).addClass('active');
+            
+            return;
+        }
+        /*TODO: This field is no longer filename, it is now uuid */
+        var data = {'filename': uuid};
         $.ajax({
             type: 'POST', 
             contentType: 'application/json',

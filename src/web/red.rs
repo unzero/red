@@ -16,6 +16,7 @@ pub struct RedLogin{
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Redfile {
+    //TODO this attribute is no longer filename, now it is file_uuid
     filename: String,
 }
 
@@ -105,15 +106,15 @@ pub async fn open_file(file: actix_web::web::Json<Redfile>,
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let file_uuid = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().get_file_uuid(file.filename.clone());
+            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().query_file_uuid(file.filename.clone());
             let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(file.filename.clone());
             let file_type = get_file_type(file.filename.clone());
             HttpResponse::Ok().json( crate::json_response!(
                     {
                         "file-content": file_content, 
                         "file-type": file_type,
-                        "filename": file.filename,
-                        "file-uuid": file_uuid
+                        "filename": filename,
+                        "file-uuid": file.filename
                     }
 
                 ))
