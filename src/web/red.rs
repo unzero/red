@@ -114,7 +114,7 @@ pub async fn open_file(target: actix_web::web::Json<Redfile>,
                 ))
         },
         _ => {
-            redirect("/")
+            HttpResponse::Forbidden().finish()
         },
     }
     
@@ -130,7 +130,7 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
             HttpResponse::Ok().json( crate::json_response!({"files": files}) )
         },
         _ => {
-            redirect("/")
+            HttpResponse::Forbidden().finish()
         },
     }
     

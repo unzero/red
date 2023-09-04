@@ -116,6 +116,9 @@
             data: JSON.stringify(data),
             url: 'open_file',
             success: load_file,
+            statusCode: {
+                403: session_expired
+            },
         });
     }
 
@@ -145,6 +148,9 @@
             success: function(response){
                 update_div_files(response['files']);
             },
+            statusCode: {
+                403: session_expired 
+            },
         });
     }
 
@@ -169,6 +175,7 @@
             </div>
             </li>`
     }
+
 
 </script>
 {% endblock scripts %}

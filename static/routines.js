@@ -7,6 +7,10 @@ function remove_from_classlist(prefix, to_remove){
     }
 }
 
+function session_expired(){
+    alert("Your session has expired, you will be redirect to login page.");
+    location.reload();
+}
 
 
 
