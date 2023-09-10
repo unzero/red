@@ -99,7 +99,6 @@
 
     function open_file(uuid){
         var e = $(`#tab_file_${uuid}`)
-        console.log(e);
         if( e.length > 0 ){
             remove_from_classlist('btn_file_', ['active']);
             remove_from_classlist('tab_file_', ['active', 'show']);
@@ -136,6 +135,7 @@
             automaticLayout: true,
             theme: 'vs-dark'
         });
+        $(`#${tab_id}`).data('editor', editor);
     }
 
     function change_directory(directory){
@@ -168,7 +168,7 @@
             ${filename}
             </div>
             <div class="col-sm-3 gx-7 d-flex flex-row-reverse" style="">
-            <button type="button" class="btn p-0" aria-label="Close">X</button>
+            <button type="button" class="btn p-0" aria-label="Close" onclick="close_editor('${file_uuid}')">X</button>
             </div>
             </div>
 
@@ -177,8 +177,16 @@
     }
 
     function session_expired(){
-        alert("Your session has expired, you will be redirect to login page.");
+        alert('Your session has expired, you will be redirect to login page.');
         location.reload();
+    }
+
+    function close_editor(uuid){
+        var tab_file = $(`#tab_file_${uuid}`);
+        tab_file.data('editor').dispose();
+
+        $(`#btn_file_${uuid}`).remove();
+        $(`#tab_file_${uuid}`).remove();
     }
 
 </script>
