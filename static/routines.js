@@ -6,5 +6,3 @@ function remove_from_classlist(prefix, to_remove){
         }
     }
 }
-
-
