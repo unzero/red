@@ -163,6 +163,8 @@ pub async fn new_file(path: actix_web::web::Path<String>,
     }
     let filename = path.into_inner();
     let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().create_new_file(filename);
-    HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid}) )
+    let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().execute_file();
+    HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files}) )
 }
+
 

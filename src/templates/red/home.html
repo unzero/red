@@ -153,6 +153,7 @@
             e.addClass('show'); 
             $(`#btn_file_${uuid}`).addClass('active');
             
+            $('#loading_layout').attr('hidden', true); 
             return;
         }
         var data = {'file_uuid': uuid};
@@ -253,6 +254,7 @@
             url: 'new_file/'+filename,
             success: function(response){
                 open_file(response['file_uuid']);
+                update_div_files(response['files']);
             },
             statusCode: {
                 403: session_expired 
