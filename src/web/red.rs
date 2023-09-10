@@ -146,3 +146,23 @@ fn get_file_type(filename: String) -> String {
         _ => String::from(ext)
     }
 }
+
+fn get_user_uuid(identity: Option<Identity>) -> String {
+    match identity {
+        Some(id) => id.id().unwrap(),
+        _ => return "".into()
+    }
+}
+
+pub async fn new_file(path: actix_web::web::Path<String>, 
+                           identity: Option<Identity>, 
+                           red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+    let user_uuid = get_user_uuid(identity);
+    if user_uuid.is_empty() {
+        return HttpResponse::Forbidden().finish()
+    }
+    let filename = path.into_inner();
+    let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().create_new_file(filename);
+    HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid}) )
+}
+

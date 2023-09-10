@@ -31,6 +31,12 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(change_directory)),
     );
 
+
+    cfg.service(
+        web::resource("/new_file/{file}")
+            .route(web::get().to(new_file)),
+    );
+
 }
 
 

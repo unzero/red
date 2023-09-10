@@ -38,17 +38,13 @@ impl RedUser {
     pub fn execute_cd(&mut self, location: String) -> String {
         let cmd = format!("cd {}; cd {}; pwd", self.current_path, location);
         let partial_result = self.execute_cmd(&cmd.to_owned());
-        print!("execute_cd cmd {}\n", cmd);
         self.current_path = partial_result.replace("\n", "");
-        print!("execute_cd self.current_path {}\n", self.current_path);
         "Ok".to_string()
     }
 
     pub fn execute_file(&mut self) -> Vec<HashMap<String, String>> {
         let cmd = format!("cd {}; file *", self.current_path);
-        print!("execute_file cmd {}\n", cmd);
         let partial_result = self.execute_cmd(&cmd.to_owned());
-        print!("execute_file partial_result {}\n", partial_result);
         //Update the available_files table
         self.available_files = HashMap::from([ (self.get_file_uuid(String::from("..")), String::from("..")) ]);
         let mut files = vec![HashMap::from([
@@ -90,8 +86,6 @@ impl RedUser {
     }
 
     pub fn change_directory(&mut self, target: String) -> Vec<HashMap<String, String>> {
-        print!("change_directory target {}\n", target);
-        print!("change_directory self.available_files {:?}\n", self.available_files);
         match self.available_files.get(&target) {
             Some(real_target) => {
                 self.execute_cd(real_target.clone())
@@ -116,6 +110,23 @@ impl RedUser {
             Some(filename) => filename.clone(), 
             _ => String::from("RED ERROR"),
         }
+    }
+
+    pub fn  create_new_file(&mut self, target: String) -> String {
+        let file_uuid = self.get_file_uuid(target.clone());
+        match self.available_files.get(&target) { 
+            Some(_) => (),
+            _ => {
+                let cmd = format!("touch {}", self.get_full_path_to(target.clone()));
+                let cmd_res = self.execute_cmd(&cmd.to_owned());
+                if cmd_res.is_empty() {
+                    self.available_files.insert(file_uuid.clone(), target.clone());
+                }else{
+                    return "Error, error".into();
+                }
+            }
+        }
+        file_uuid
     }
 }
 
