@@ -154,14 +154,14 @@ fn get_user_uuid(identity: Option<Identity>) -> String {
     }
 }
 
-pub async fn new_file(path: actix_web::web::Path<String>, 
-                           identity: Option<Identity>, 
-                           red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+pub async fn new_file(target: actix_web::web::Json<Redfile>, 
+                      identity: Option<Identity>, 
+                      red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
     let user_uuid = get_user_uuid(identity);
     if user_uuid.is_empty() {
         return HttpResponse::Forbidden().finish()
     }
-    let filename = path.into_inner();
+    let filename = target.get_uuid();
     let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().create_new_file(filename);
     let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().execute_file();
     HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files}) )

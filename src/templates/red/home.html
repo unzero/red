@@ -11,8 +11,8 @@
     <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.js"></script>
     <script src="/static/node_modules/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 
-    <script src="/static/routines.js"></script>
     <link rel="stylesheet" href="/static/home.css">
+
 {% endblock header%}
 
 {% block content %}
@@ -31,7 +31,6 @@
         </div>
     </div>
 
-
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -47,7 +46,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="new_file()">Create</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="loading_call('new_file')">Create</button>
                 </div>
             </div>
         </div>
@@ -107,6 +106,7 @@
 
 
 {% block scripts %}
+
 <script> 
     $(document).ready(function(){
         var files = []; 
@@ -122,52 +122,56 @@
 
     function update_div_files(files){
         var new_content = '';
-        /*file is a tuple with [name, type]*/
         files.forEach((file) => {
             if( file['type'] == 'directory' ){
-                new_content += `<li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover" href="javascript:change_directory('${file['uuid']}')">
-                    <svg class="bi" width="16" height="16"><use xlink:href="#directory"/></svg>
-                    ${file['name']}
-                    </a>
-                    </li>`;
+                new_content += build_file_li({
+                    'to_call': 'change_directory',
+                    'icon': '#directory',
+                }, file);
             }else{
-                new_content += `<li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover link-secondary" href="javascript:open_file('${file['uuid']}')"> 
-                    <svg class="bi" width="16" height="16"><use xlink:href="#file"/></svg>
-                    ${file['name']}
-                    </a>
-                    </li>`;
+                new_content += build_file_li({
+                    'class': 'link-secondary',
+                    'to_call': 'open_file',
+                    'icon': '#file',
+                }, file);
             }
         });
         $('#ul_files').html(new_content);
     }
 
+    function build_file_li(config, file){
+        return `<li class="nav-item">
+        <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover ${config['class']}" 
+            href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
+        <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
+        ${file['name']}
+        </a>
+        </li>`;
+
+    }
+
     function open_file(uuid){
-        $('#loading_layout').removeAttr('hidden'); 
-        var e = $(`#tab_file_${uuid}`)
-        if( e.length > 0 ){
-            remove_from_classlist('btn_file_', ['active']);
-            remove_from_classlist('tab_file_', ['active', 'show']);
-            e.addClass('active'); 
-            e.addClass('show'); 
-            $(`#btn_file_${uuid}`).addClass('active');
-            
-            $('#loading_layout').attr('hidden', true); 
+        if( is_already_open(uuid) ){ 
             return;
         }
-        var data = {'file_uuid': uuid};
-        $.ajax({
-            type: 'POST', 
-            contentType: 'application/json',
-            data: JSON.stringify(data),
+        ajax_call({
+            data: {'file_uuid': uuid},
             url: 'open_file',
             success: load_file,
-            statusCode: {
-                403: session_expired
-            },
         });
-        $('#loading_layout').attr('hidden', true); 
+    }
+
+    function is_already_open(uuid){
+        var editor_open = $(`#tab_file_${uuid}`);
+        if( editor_open.length > 0 ){
+            remove_from_classlist('btn_file_', ['active']);
+            remove_from_classlist('tab_file_', ['active', 'show']);
+            editor_open.addClass('active'); 
+            editor_open.addClass('show'); 
+            $(`#btn_file_${uuid}`).addClass('active');
+            return true;
+        }
+        return false;
     }
 
     function load_file(response){
@@ -188,32 +192,25 @@
     }
 
     function change_directory(directory){
-        $('#loading_layout').removeAttr('hidden'); 
-        var data = {'file_uuid': directory};
-        $.ajax({
-            type: 'POST', 
-            contentType: 'application/json',
-            data: JSON.stringify(data),
+        ajax_call({
+            'data': {'file_uuid': directory},
             url: 'change_directory',
             success: function(response){
                 update_div_files(response['files']);
             },
-            statusCode: {
-                403: session_expired 
-            },
         });
-        $('#loading_layout').attr('hidden', true); 
     }
 
     function build_file_tab(tab_id){
-        return `<div class="tab-pane fade show active" id="${tab_id}" role="tabpanel" aria-labelledby="${tab_id}" tabindex="0" style="height: 500px"></div>`
+        return `<div class="tab-pane fade show active" id="${tab_id}" role="tabpanel" 
+            aria-labelledby="${tab_id}" tabindex="0" style="height: 500px"></div>`
     }
 
     function build_file_nav(file_uuid, filename){
         return `
             <li class="nav-item" role="presentation">
-            <div class="nav-link active" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" type="button" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
-
+            <div class="nav-link active" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
+                type="button" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
             <div class="row">
             <div class="col-sm-9 overflow-hidden gx-7">
             ${filename}
@@ -222,16 +219,11 @@
             <button type="button" class="btn p-0" aria-label="Close" onclick="close_editor('${file_uuid}')">X</button>
             </div>
             </div>
-
             </div>
             </li>`
     }
 
-    function session_expired(){
-        alert('Your session has expired, you will be redirect to login page.');
-        location.reload();
-    }
-
+    
     function close_editor(uuid){
         var tab_file = $(`#tab_file_${uuid}`);
         tab_file.data('editor').dispose();
@@ -240,29 +232,45 @@
         $(`#tab_file_${uuid}`).remove();
     }
 
-    function new_file(){
+    function loading_call(type, data){
         $('#loading_layout').removeAttr('hidden'); 
+        var functions = {
+            'new_file': new_file,
+            'change_directory': change_directory,
+            'open_file': open_file
+        };
+        functions[type](data);
+        $('#loading_layout').attr('hidden', true); 
+    }
+
+    function new_file(data){
         var filename = $("#new_filename").val()
         if( filename == '' || filename.includes('/') ){
             alert('Invalid filename, cannot be blank or include "/"');
-            $('#loading_layout').attr('hidden', true); 
             return;
         }
-        var data = {'filename': filename};
-        $.ajax({
-            type: 'GET', 
-            url: 'new_file/'+filename,
-            success: function(response){
+        ajax_call({
+            'url': 'new_file',
+            'data': {'file_uuid': filename},
+            'success': function(response){
                 open_file(response['file_uuid']);
                 update_div_files(response['files']);
-            },
+            }
+        });
+    }
+
+    function ajax_call(config){
+        $.ajax({
+            type: 'POST', 
+            url: config['url'],
+            contentType: 'application/json',
+            data: JSON.stringify(config['data']),
+            success: config['success'],
             statusCode: {
                 403: session_expired 
             },
         });
-        $('#loading_layout').attr('hidden', true); 
     }
-
 
 </script>
 {% endblock scripts %}
