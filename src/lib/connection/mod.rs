@@ -1,4 +1,5 @@
 use std::net::TcpStream; 
+use actix_web::Result;
 use ssh2::Session;
 use std::{io::prelude::*, path::Path};
 
@@ -76,5 +77,19 @@ pub fn read_file_content(user_data: SshInformation, filepath: &str) -> Result<St
     Ok(String::from_utf8(contents).unwrap())
 }
 
+pub fn save_file(user_data: SshInformation, filepath: &str, file_content: &str) -> Result<String, &'static str>{
+    let sess = get_auth_session(user_data).unwrap();
+    let u8_file_content = file_content.as_bytes(); 
+    let file_content_size = file_content.len() as u64;
+    let mut remote_file = sess.scp_send(Path::new(filepath), 0o644, file_content_size, None).unwrap();
+    print!("\n file size: {}", file_content_size);
+    print!("\n {} ", file_content);
+    remote_file.write(u8_file_content).unwrap();
+    remote_file.send_eof().unwrap();
+    remote_file.wait_eof().unwrap();
+    remote_file.close().unwrap();
+    remote_file.wait_close().unwrap();
+    Ok(String::from("Successfully saved."))
+}
 
 

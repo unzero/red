@@ -127,6 +127,18 @@ impl RedUser {
             }
         }
         file_uuid
+    } 
+
+    pub fn  save_file(&mut self, file_uuid: String, file_content: String) -> String {
+        match self.available_files.get(&file_uuid) { 
+            Some(filename) => {
+                connection::save_file(
+                    self.to_ssh_information(), 
+                    &self.get_full_path_to(filename.clone()).to_owned(),
+                &file_content.to_owned()).unwrap()
+            }
+            _ => String::from("RED ERROR")
+        }        
     }
 }
 

@@ -167,4 +167,21 @@ pub async fn new_file(target: actix_web::web::Json<Redfile>,
     HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files}) )
 }
 
+pub async fn save_file(target: actix_web::web::Json<Redfile>, 
+                        identity: Option<Identity>, 
+                        red_users: actix_web::web::Data<crate::RedUsers>) 
+                        -> HttpResponse {
+    let user_uuid = get_user_uuid(identity);
+    if user_uuid.is_empty() {
+        return HttpResponse::Forbidden().finish()
+    }
+    
+    if target.get_file_content().is_none() {
+        return HttpResponse::InternalServerError().finish()
+    }
+    
+    let result = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
+                        .save_file(target.get_uuid(), target.get_file_content().unwrap());
+    HttpResponse::Ok().json( crate::json_response!({"message": result }) )
+}
 

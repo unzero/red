@@ -14,7 +14,7 @@ mod lib;
 
 use crate::lib::clients::RedUsers;
 
-const ONE_MINUTE: Duration = Duration::minutes(5);
+const COOKIE_LIFETIME: Duration = Duration::minutes(5);
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -36,8 +36,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 SessionMiddleware::builder( CookieSessionStore::default(), private_key.clone() )
                 .cookie_name("red".to_owned())
-                .cookie_secure(true)
-                .session_lifecycle(PersistentSession::default().session_ttl(ONE_MINUTE))
+                .cookie_secure(false)
+                .session_lifecycle(PersistentSession::default().session_ttl(COOKIE_LIFETIME))
                 .build(),
             )
             .app_data(actix_web::web::Data::new(tera))
@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
             .configure(web::get_configuration)
             .service(actix_files::Files::new("/static", "./static/").show_files_listing())
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("192.168.230.130", 8080))?
     .run()
     .await
 }

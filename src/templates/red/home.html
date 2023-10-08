@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- New file modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -52,8 +52,6 @@
         </div>
     </div>
 
-
-
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
       <symbol id="directory" width="16" height="16">
         <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/>
@@ -69,7 +67,7 @@
             <a class="navbar-brand">Red Ssh</a>
                 
             <form class="d-flex" action="/logout" method="post" >
-                <button class="btn btn-outline-success" type="submit" name="logout">Logout</button>
+                <button class="btn btn-outline-success btn-sm" type="submit" name="logout">Logout</button>
             </form>
         </div>
     </nav>
@@ -85,10 +83,14 @@
                 <div class="col-sm-11">
                     <ul class="nav nav-tabs" id="open_files_nav" role="tablist"></ul>
                 </div>
-                <div class="col-sm-1">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        +
+
+                <div class="dropdown col-sm-1">
+                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Menu
                     </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal">New File</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="tab-content" id="open_files_tab"></div>
@@ -97,9 +99,7 @@
     </div>
 
     <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom" data-bs-theme="dark">
-        <div class="container-fluid">
-            <h6 class="navbar-text">Connected to {{host}} as {{user}}.</h6>
-        </div>
+        <p >Connected to {{host}} as {{user}}.</p>
     </nav>
 
 {% endblock content %}
@@ -141,7 +141,7 @@
 
     function build_file_li(config, file){
         return `<li class="nav-item">
-        <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover ${config['class']}" 
+        <a class="nav-link d-flex align-items-center gap-2 icon-link icon-link-hover ${config['class']} file_item" 
             href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
         <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
         ${file['name']}
@@ -209,26 +209,27 @@
     function build_file_nav(file_uuid, filename){
         return `
             <li class="nav-item" role="presentation">
-            <div class="nav-link active" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
-                type="button" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
-            <div class="row">
-            <div class="col-sm-9 overflow-hidden gx-7">
-            ${filename}
-            </div>
-            <div class="col-sm-3 gx-7 d-flex flex-row-reverse" style="">
-            <button type="button" class="btn p-0" aria-label="Close" onclick="close_editor('${file_uuid}')">X</button>
-            </div>
-            </div>
-            </div>
+                <div class="btn-group" id="btn_group_${file_uuid}">
+                <button type="button" class="active" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
+                role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
+                    ${filename}    
+                </button>
+                <button type="button" class="dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:save_file('${file_uuid}')">Save</a></li>
+                    <li><a class="dropdown-item" href="javascript:close_editor('${file_uuid}')">Close</a></li>
+                </ul>
+                </div>
             </li>`
     }
-
     
     function close_editor(uuid){
         var tab_file = $(`#tab_file_${uuid}`);
         tab_file.data('editor').dispose();
 
-        $(`#btn_file_${uuid}`).remove();
+        $(`#btn_group_${uuid}`).remove();
         $(`#tab_file_${uuid}`).remove();
     }
 
@@ -269,6 +270,18 @@
             statusCode: {
                 403: session_expired 
             },
+        });
+    }
+
+    function save_file(uuid){
+        var tab_file = $(`#tab_file_${uuid}`);
+        file_content = tab_file.data('editor').getValue();
+        ajax_call({
+            'url': 'save_file',
+            'data': {'file_uuid': uuid, 'file_content': file_content},
+            'success': function(response){
+                alert(response['message']);
+            }
         });
     }
 
