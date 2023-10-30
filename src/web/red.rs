@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use crate::lib::connection::{check_connection, SshInformation};
 use crate::lib::{clients::RedUser, files::Redfile};
+use crate::web::utils::get_dummy_files;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RedLogin{
@@ -51,6 +52,9 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
         },
         _ => {
             redirect("/")
+            /* 
+            render_template("red/home.html", crate::context!({"identity": "test", 
+                "host": "test", "user": "test", "files": get_dummy_files(10)}), templates)*/
         }
     }
 }
