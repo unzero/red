@@ -8,31 +8,22 @@ mod s3_user;
 use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
 
 use crate::web::red::RedLogin;
+use crate::lib::errors::RedError;
 
 use self::ssh_user::SshUser;
 use self::s3_user::S3User;
 
 pub type RedUsers = Arc<Mutex<HashMap<String, Box<dyn Client + Send> >>>;
 
-pub struct UserError {
-    error : String
-}
-
-impl UserError {
-    pub fn new(e: String) -> Self { 
-        Self { error: e }
-    }
-}
-
 pub trait Client {
     fn get_host(&self) -> String;
     fn get_username(&self) -> String;
-    fn execute(&self, cmd: &str) -> Result<String, UserError>;
-    fn check_connection(&self) -> Result<(), UserError>;
-    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, UserError>;
+    fn execute(&self, cmd: &str) -> Result<String, RedError>;
+    fn check_connection(&self) -> Result<(), RedError>;
+    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, RedError>;
 }
 
-pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + Send>, UserError> {
+pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + Send>, RedError> {
     let user: Box<dyn Client + Send>;
     match kind {
         "ssh" => {

@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-use serde::de::IntoDeserializer;
-
-use super::{Client, UserError};
+use super::Client;
+use crate::lib::errors::RedError;
 
 pub struct S3User;
 
@@ -22,15 +21,16 @@ impl Client for S3User {
         "None".into()
     }
 
-    fn check_connection(&self) -> Result<(), UserError> {
-        Err(UserError::new("We cannot support S3 yet.".into()))
+    fn check_connection(&self) -> Result<(), RedError> {
+        Err(RedError::OtherError("We cannot support S3 yet."))
     }
 
-    fn execute(&self, cmd: &str) -> Result<String, UserError> {
-        Err(UserError::new("We cannot support S3 yet.".into()))
+    fn execute(&self, cmd: &str) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot support S3 yet."))
     }
 
-    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, UserError> {
-        Err(UserError::new("We cannot support S3 yet.".into()))
+    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, RedError> {
+        Err(RedError::OtherError("We cannot support S3 yet."))
     }
+
 }

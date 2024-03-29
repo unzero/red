@@ -4,8 +4,9 @@ use std::{collections::HashMap, string::String};
 use sha2::{Sha256, Digest};
 use log;
 
-use super::{Client, UserError};
+use super::Client;
 use crate::lib::connection::get_ssh_connection;
+use crate::lib::errors::RedError;
 
 const SSH_PORT: &str = "22";
 
@@ -48,22 +49,22 @@ impl Client for SshUser {
         self.username.clone()
     }
 
-    fn execute(&self, cmd :&str) -> Result<String, UserError> {
+    fn execute(&self, cmd :&str) -> Result<String, RedError> {
         let conn = get_ssh_connection(self.host.as_str(), SSH_PORT, self.username.as_str(), self.password.as_str())
-            .map_err( |_e| UserError::new("There was an error generating the connection".into()) )?;
+            .map_err( |_e| RedError::ConnectionError )?;
         log::debug!("SshUser trying to execute: {:?}", cmd);
-        let result = conn.execute(cmd).map_err(|_e| UserError::new("There was an error executing the connection".into()))?;
+        let result = conn.execute(cmd).map_err(|_e| RedError::ConnectionError )?;
         log::debug!("SshUser executed {:?} with result {:?}", cmd, result);
         Ok(result)
     }
 
-    fn check_connection(&self) -> Result<(), UserError> {
+    fn check_connection(&self) -> Result<(), RedError> {
         Ok(())
     }
 
-    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, UserError> {
+    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, RedError> {
         let cmd = format!("cd {}; file *", self.current_path.as_str());
-        let partial_result = self.execute(&cmd).map_err( |_e| UserError::new("Something gone wrong!".into()))?;
+        let partial_result = self.execute(&cmd).map_err( |_e| RedError::ClientError )?;
         //Update the available_files table
         self.available_files = HashMap::from([ (self.get_file_uuid(String::from("..")), String::from("..")) ]);
         let mut files = vec![HashMap::from([
