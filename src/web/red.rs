@@ -15,31 +15,6 @@ pub struct RedLogin{
     pub password: String,
 }
 
-#[derive(Debug)]
-pub struct RedHttpError {
-    error: String
-}
-
-use actix_web::error::ResponseError;
-
-impl std::fmt::Display for RedHttpError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.error)
-    }
-}
-
-impl RedHttpError {
-    pub fn new(e: &str) -> Self {
-        Self { error: e.into() }
-    }
-
-    pub fn default_error() -> Self {
-        Self { error: "Something gone wrong, try again".into() }
-    }
-}
-
-impl ResponseError for RedHttpError {}
-
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
     match identity {
