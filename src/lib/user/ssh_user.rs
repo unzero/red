@@ -20,13 +20,12 @@ pub struct SshUser {
 }
 
 impl SshUser {
-    pub fn new(host: String, username: String, password: String) -> Self {
+    pub fn new(host: String, username: String, password: String) -> Result<Self, RedError> {
         // TODO : wrap ConnectionError as UserError
-        let conn = get_ssh_connection(host.as_str(), SSH_PORT, username.as_str(), password.as_str()).unwrap();
-        let current_path = conn.execute("pwd").unwrap().replace("\n", "");
-        let available_files = HashMap::new();
-        log::debug!("New SshUser with parameters: {} {} {} {} {:?}", host, username, password, current_path, available_files);
-        Self { host, username, password, current_path, available_files }
+        let mut instance = Self { host, username, password, current_path: "/home".into(), available_files: HashMap::new() };
+        instance.current_path = instance.execute("pwd")?.replace("\n", "");
+        log::debug!("New SshUser with parameters: {:?}", instance);
+        Ok(instance)
     }
 
     fn get_full_path_to(&mut self, filename: String) -> String {

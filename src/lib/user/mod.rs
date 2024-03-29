@@ -25,7 +25,7 @@ pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + 
     let user: Box<dyn Client + Send>;
     match kind {
         "ssh" => {
-            user = Box::new(SshUser::new(client_data.host, client_data.username, client_data.password));
+            user = Box::new(SshUser::new(client_data.host, client_data.username, client_data.password)?);
         }
         _ => {
             user = Box::new(S3User::new());
