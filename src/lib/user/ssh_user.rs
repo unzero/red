@@ -21,7 +21,6 @@ pub struct SshUser {
 
 impl SshUser {
     pub fn new(host: String, username: String, password: String) -> Result<Self, RedError> {
-        // TODO : wrap ConnectionError as UserError
         let mut instance = Self { host, username, password, current_path: "/home".into(), available_files: HashMap::new() };
         instance.current_path = instance.execute("pwd")?.replace("\n", "");
         log::debug!("New SshUser with parameters: {:?}", instance);
