@@ -5,15 +5,13 @@
 mod ssh_user;
 mod s3_user;
 
-use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
+use std::collections::HashMap;
 
 use crate::web::red::RedLogin;
 use crate::lib::errors::RedError;
 
 use self::ssh_user::SshUser;
 use self::s3_user::S3User;
-
-pub type RedUsers = Arc<Mutex<HashMap<String, Box<dyn Client + Send> >>>;
 
 pub trait Client {
     fn get_host(&self) -> String;
