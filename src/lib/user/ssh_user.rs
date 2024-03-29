@@ -70,7 +70,7 @@ impl Client for SshUser {
                                            (String::from("type"), String::from("directory")),
                                            (String::from("uuid"), self.get_file_uuid(String::from(".."))),
         ])];
-        //let mut files = vec![vec![String::from(".."), String::from("directory")]];
+
         if partial_result.contains("No such file or directory") {
             //The directory is emtpy
             return Ok(files)
@@ -79,15 +79,15 @@ impl Client for SshUser {
             .filter_map( |s| match String::from(s).len() {
                 0 => None,
                 _ => Some(String::from(s)) }) {
-            let file_info = tmp_file.replace(" ", "").split(":").map(|x| String::from(x)).collect::<Vec<_>>();
-            let file_uuid = self.get_file_uuid(file_info[0].clone());
-            self.available_files.insert(file_uuid.clone(), file_info[0].clone());
-            files.push( HashMap::from([
-                                      (String::from("name"), file_info[0].clone()),
-                                      (String::from("type"), file_info[1].clone()),
-                                      (String::from("uuid"), file_uuid.clone()),
-            ]));
-        }
+                let file_info = tmp_file.replace(" ", "").split(":").map(|x| String::from(x)).collect::<Vec<_>>();
+                let file_uuid = self.get_file_uuid(file_info[0].clone());
+                self.available_files.insert(file_uuid.clone(), file_info[0].clone());
+                files.push( HashMap::from([
+                                        (String::from("name"), file_info[0].clone()),
+                                        (String::from("type"), file_info[1].clone()),
+                                        (String::from("uuid"), file_uuid.clone()),
+                ]));
+            }
         return Ok(files)
     }
 }
