@@ -1,42 +1,84 @@
-use actix_web::{HttpResponse, HttpRequest, HttpMessage}; 
+use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
+use env_logger::fmt;
 use tera::Context;
 use serde::{Deserialize, Serialize};
 use actix_identity::Identity;
 use uuid::Uuid;
 
-use crate::lib::connection::{check_connection, SshInformation};
-use crate::lib::{clients::RedUser, files::Redfile};
-use crate::web::utils::get_dummy_files;
+use crate::lib::user::new_client;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RedLogin{
-    host: String,
-    user: String,
-    password: String,
+    pub host: String,
+    pub username: String,
+    //TODO: hash the password to protect it 
+    pub password: String,
+}
+
+#[derive(Debug)]
+pub struct RedHttpError {
+    error: String
+}
+
+use actix_web::error::ResponseError;
+
+impl std::fmt::Display for RedHttpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.error)
+    }
+}
+
+impl RedHttpError {
+    pub fn new(e: &str) -> Self {
+        Self { error: e.into() }
+    }
+
+    pub fn default_error() -> Self {
+        Self { error: "Something gone wrong, try again".into() }
+    }
+}
+
+impl ResponseError for RedHttpError {}
+
+pub async fn index(templates: actix_web::web::Data<tera::Tera>,
+                   identity: Option<Identity>) -> HttpResponse {
+    match identity {
+        Some(_) => {
+            redirect("/red")
+        },
+        _ => {
+            render_template("red/index.html", crate::context!({"errors": {}}), templates)
+        }
+    }
 }
 
 pub async fn red_login(form: actix_web::web::Form<RedLogin>,
                         templates: actix_web::web::Data<tera::Tera>,
                         red_users: actix_web::web::Data<crate::RedUsers>,
-                        request: HttpRequest) -> HttpResponse {
-    let ssh_info = SshInformation::new(form.host.clone(), 22, form.user.clone(), form.password.clone());
-    match check_connection(ssh_info) {
-        true => {
-            let id = Uuid::new_v4();
-            let _ = Identity::login(&request.extensions(), id.to_string());
-            //TODO: hash the password to protect it 
-            red_users.lock().unwrap().insert( id.to_string(), RedUser::new(
-                        form.host.clone(), 
-                        form.user.clone(), 
-                        form.password.clone()) 
-                    );
-            redirect("/red")
-        },
-        false => {
-            render_template("red/index.html", crate::context!({"errors": {"login": "Wrong information"}}), templates)
-        },
-    }
+                        request: HttpRequest) -> Result<HttpResponse, RedHttpError> {
+    let user = new_client("ssh", form.into_inner()).map_err( |_e| RedHttpError::new("Could not login with the given information.") )?;
+    let id = Uuid::new_v4();
+    Identity::login(&request.extensions(), id.to_string()).map_err( |_e| RedHttpError::default_error())?;
+    red_users.lock().map_err( |_e| RedHttpError::default_error() )?.insert( id.to_string(), user );
+    Ok(redirect("/red"))
 }
+
+fn render_template(template_name: &str, 
+                   context: &Context, 
+                   templates: actix_web::web::Data<tera::Tera>) -> HttpResponse {
+    let template = templates.render(template_name, context).expect("Error");
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(template)
+}
+
+fn redirect(location: &str) -> HttpResponse{
+    HttpResponse::Found()
+                .insert_header(( actix_web::http::header::LOCATION, location, )).body("ok")
+}
+
+/*
+
 
 pub async fn home(templates: actix_web::web::Data<tera::Tera>, 
                   red_users: actix_web::web::Data<crate::RedUsers>,
@@ -59,31 +101,9 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
     }
 }
 
-pub async fn index(templates: actix_web::web::Data<tera::Tera>,
-                   identity: Option<Identity>) -> HttpResponse {
-    match identity {
-        Some(_) => {
-            redirect("/red")
-        },
-        _ => {
-            render_template("red/index.html", crate::context!({"errors": {}}), templates)
-        }
-    }
-}
 
-fn render_template(template_name: &str, 
-                   context: &Context, 
-                   templates: actix_web::web::Data<tera::Tera>) -> HttpResponse {
-    let template = templates.render(template_name, context).expect("Error");
-    HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(template)
-}
 
-fn redirect(location: &str) -> HttpResponse{
-    HttpResponse::Found()
-                .insert_header(( actix_web::http::header::LOCATION, location, )).body("ok")
-}
+
 
 pub async fn red_logout(identity: Option<Identity>,
                         red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
@@ -189,3 +209,4 @@ pub async fn save_file(target: actix_web::web::Json<Redfile>,
     HttpResponse::Ok().json( crate::json_response!({"message": result }) )
 }
 
+*/

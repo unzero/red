@@ -11,15 +11,18 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
         web::resource("/")
             .route(web::get().to(index)),
     );
-    cfg.service(
-        web::resource("/logout")
-            .route(web::post().to(red_logout)),
-    );
+
     cfg.service(
         web::resource("/red")
             .route(web::post().to(red_login))
-            .route(web::get().to(home)),
+            //.route(web::get().to(home)),
     );
+
+    /*cfg.service(
+        web::resource("/logout")
+            .route(web::post().to(red_logout)),
+    );
+
 
     cfg.service(
         web::resource("/open_file")
@@ -39,7 +42,7 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/save_file")
             .route(web::post().to(save_file)),
-    );
+    );*/
 
 }
 

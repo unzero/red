@@ -12,7 +12,7 @@ use std::{sync::{Arc, Mutex}, collections::HashMap};
 mod web;
 mod lib;
 
-use crate::lib::clients::RedUsers;
+use crate::lib::user::RedUsers;
 
 const COOKIE_LIFETIME: Duration = Duration::minutes(5);
 
