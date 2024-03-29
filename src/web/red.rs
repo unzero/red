@@ -1,11 +1,11 @@
-use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
 use env_logger::fmt;
-use tera::Context;
 use serde::{Deserialize, Serialize};
-use actix_identity::Identity;
 use uuid::Uuid;
+use actix_identity::Identity;
+use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
+use tera::Context;
 
-use crate::lib::user::new_client;
+use crate::{lib::user::new_client, web::errors::RedHttpError};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RedLogin{

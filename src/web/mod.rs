@@ -1,9 +1,11 @@
+pub mod red;
+pub mod utils;
+mod errors;
+
 //within this file I put all logic for web application
 use actix_web::web;
 
 //each module is an application 
-pub mod red;
-pub mod utils;
 use crate::web::red::*;
 
 pub fn get_configuration(cfg: &mut web::ServiceConfig) {
