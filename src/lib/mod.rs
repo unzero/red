@@ -1,3 +1,3 @@
-pub mod connection;
-pub mod files;
 pub mod user;
+mod connection;
+mod files;

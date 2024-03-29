@@ -17,7 +17,7 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/red")
             .route(web::post().to(red_login))
-            //.route(web::get().to(home)),
+            .route(web::get().to(home)),
     );
 
     /*cfg.service(

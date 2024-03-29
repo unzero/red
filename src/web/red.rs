@@ -28,7 +28,6 @@ pub async fn index(templates: actix_web::web::Data<tera::Tera>,
 }
 
 pub async fn red_login(form: actix_web::web::Form<RedLogin>,
-                        templates: actix_web::web::Data<tera::Tera>,
                         red_users: actix_web::web::Data<crate::RedUsers>,
                         request: HttpRequest) -> Result<HttpResponse, RedHttpError> {
     let user = new_client("ssh", form.into_inner()).map_err( |_e| RedHttpError::new("Could not login with the given information.") )?;
@@ -52,33 +51,31 @@ fn redirect(location: &str) -> HttpResponse{
                 .insert_header(( actix_web::http::header::LOCATION, location, )).body("ok")
 }
 
-/*
-
-
 pub async fn home(templates: actix_web::web::Data<tera::Tera>, 
                   red_users: actix_web::web::Data<crate::RedUsers>,
-                  identity: Option<Identity>) -> HttpResponse {
+                  identity: Option<Identity>) -> Result<HttpResponse, RedHttpError> {
     match identity {
         Some(id) => {
-            let uuid_str = id.id().unwrap();
-            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().execute_file();
-            let host = red_users.lock().unwrap().get(&uuid_str).unwrap().host.clone();
-            let user = red_users.lock().unwrap().get(&uuid_str).unwrap().user.clone();
-            render_template("red/home.html", crate::context!({"identity": id.id().unwrap(), 
-                "host": host, "user": user, "files": files}), templates)
+            let uuid_str = id.id().map_err( |_e| RedHttpError::new("Could not get the session id"))?;
+            let files = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+                .get_mut(&uuid_str).unwrap()
+                .get_files().map_err( |_e| RedHttpError::default_error() )?;
+
+            let host = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+                .get(&uuid_str).unwrap().get_host();
+            let user = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+                .get(&uuid_str).unwrap().get_username();
+            
+            Ok(render_template("red/home.html", crate::context!({"identity": uuid_str, 
+                "host": host, "user": user, "files": files}), templates))
         },
         _ => {
-            redirect("/")
-            /* 
-            render_template("red/home.html", crate::context!({"identity": "test", 
-                "host": "test", "user": "test", "files": get_dummy_files(10)}), templates)*/
+            Ok(redirect("/"))
         }
     }
 }
 
-
-
-
+/*
 
 pub async fn red_logout(identity: Option<Identity>,
                         red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {

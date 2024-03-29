@@ -2,8 +2,8 @@
     It represents the minimal information for multiple data source, s3, ssh, etc.
 */
 
-pub mod ssh_user;
-pub mod s3_user;
+mod ssh_user;
+mod s3_user;
 
 use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
 
@@ -25,8 +25,11 @@ impl UserError {
 }
 
 pub trait Client {
+    fn get_host(&self) -> String;
+    fn get_username(&self) -> String;
     fn execute(&self, cmd: &str) -> Result<String, UserError>;
     fn check_connection(&self) -> Result<(), UserError>;
+    fn get_files(&mut self) -> Result<Vec<HashMap<String, String>>, UserError>;
 }
 
 pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + Send>, UserError> {
