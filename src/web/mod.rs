@@ -20,12 +20,12 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(home)),
     );
 
-    /*cfg.service(
+    cfg.service(
         web::resource("/logout")
             .route(web::post().to(red_logout)),
     );
 
-
+    /*
     cfg.service(
         web::resource("/open_file")
             .route(web::post().to(open_file)),

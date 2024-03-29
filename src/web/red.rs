@@ -75,20 +75,24 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
     }
 }
 
-/*
-
 pub async fn red_logout(identity: Option<Identity>,
-                        red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+                        red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     match identity {
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let red_user = red_users.lock().unwrap().remove(&uuid_str);
+            let _ = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+                .remove(&uuid_str);
             id.logout();
         },
         _ => {},
     }
-    redirect("/red")
+    Ok(redirect("/red"))
 }
+
+
+/*
+
+
 
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
