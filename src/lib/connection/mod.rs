@@ -1,28 +1,13 @@
 mod ssh_connection;
 
-use actix_web::Result;
 use ssh_connection::SshConnection;
-
-#[derive(Debug)]
-pub struct ConnectionError{
-    msg: String
-}
-
-impl ConnectionError {
-    pub fn new(e: &str) -> Self {
-        Self { msg: e.into() }
-    }
-    
-    pub fn default_error() -> Self {
-        Self { msg: "Could not create the ssh session.".into() }
-    }
-}
+use crate::lib::errors::RedError;
 
 pub trait Connection {
-    fn execute(&self, cmd: &str) -> Result<String, ConnectionError>;
-    fn check_connection(&self) -> Result<(), ConnectionError>;
+    fn execute(&self, cmd: &str) -> Result<String, RedError>;
+    fn check_connection(&self) -> Result<(), RedError>;
 }
 
-pub fn get_ssh_connection(host: &str, port: &str, username: &str, password: &str) -> Result<Box<dyn Connection>, ConnectionError> {
+pub fn get_ssh_connection(host: &str, port: &str, username: &str, password: &str) -> Result<Box<dyn Connection>, RedError> {
     Ok(Box::new(SshConnection::new(host, port, username, password)?))
 }
