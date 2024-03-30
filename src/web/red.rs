@@ -121,8 +121,10 @@ pub async fn new_file(target: actix_web::web::Json<Redfile>,
                       red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     let user_uuid = session::validate_session(identity)?;
     let filename = target.get_uuid();
-    let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().create_new_file(filename);
-    let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().execute_file();
+    let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
+        .create_new_file(filename).map_err(|_e| RedHttpError::default_error() )?;
+    let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
+        .get_files().map_err(|_e| RedHttpError::default_error() )?;
     Ok(HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files})) )
 }
 
