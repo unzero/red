@@ -114,8 +114,6 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
 }
 
-
-
 pub async fn new_file(target: actix_web::web::Json<Redfile>, 
                       identity: Option<Identity>, 
                       red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {

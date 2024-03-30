@@ -122,6 +122,14 @@ impl Client for SshUser {
     }
 
     fn create_new_file(&mut self, target: String) -> Result<String, RedError> {
-        Err(RedError::OtherError("We cannot suport S3 yet."))
+        let file_uuid = self.get_file_uuid(target.clone());
+        let filename = self.available_files.get(&target).ok_or_else(|| RedError::UserError)?;
+        if self.available_files.contains_key(filename) {
+            return Err(RedError::ClientError);
+        }
+        let cmd = format!("touch {}", self.get_full_path_to(target.clone()));
+        self.execute(&cmd).map_err( |_e| RedError::ClientError )?;
+        self.available_files.insert(file_uuid.clone(), target);
+        Ok(file_uuid)
     }
 }
