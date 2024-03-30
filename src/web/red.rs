@@ -1,3 +1,4 @@
+use actix_web::Result;
 use uuid::Uuid;
 use actix_identity::Identity;
 use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
@@ -110,25 +111,23 @@ pub async fn open_file(target: actix_web::web::Json<Redfile>,
     
 }
 
-/*
-
 pub async fn change_directory(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
-                       red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+                       red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().change_directory(target.get_uuid());
-            HttpResponse::Ok().json( crate::json_response!({"files": files}) )
+            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+                .change_directory(target.get_uuid());
+            Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
         },
         _ => {
-            HttpResponse::Forbidden().finish()
+            Ok(HttpResponse::Forbidden().finish())
         },
     }
-    
 }
 
-
+/*
 
 fn get_user_uuid(identity: Option<Identity>) -> String {
     match identity {
