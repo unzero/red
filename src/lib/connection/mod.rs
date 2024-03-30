@@ -6,6 +6,7 @@ use crate::lib::errors::RedError;
 pub trait Connection {
     fn execute(&self, cmd: &str) -> Result<String, RedError>;
     fn check_connection(&self) -> Result<(), RedError>;
+    fn read_file_content(&self, filepath: &str) -> Result<String, RedError>;
 }
 
 pub fn get_ssh_connection(host: &str, port: &str, username: &str, password: &str) -> Result<Box<dyn Connection>, RedError> {

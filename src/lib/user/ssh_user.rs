@@ -5,7 +5,7 @@ use sha2::{Sha256, Digest};
 use log;
 
 use super::Client;
-use crate::lib::connection::get_ssh_connection;
+use crate::lib::connection::{self, get_ssh_connection};
 use crate::lib::errors::RedError;
 
 const SSH_PORT: &str = "22";
@@ -35,6 +35,12 @@ impl SshUser {
         let mut hasher = Sha256::new();
         hasher.update(self.get_full_path_to(filename).as_bytes());
         format!("{:x}", hasher.finalize())
+    }
+
+    fn build_new_connection(&self) -> Result<Box<dyn connection::Connection>, RedError> {
+        let conn = get_ssh_connection(self.host.as_str(), SSH_PORT, self.username.as_str(), self.password.as_str())
+            .map_err( |_e| RedError::ConnectionError )?;
+        Ok(conn)
     }
 }
 
@@ -91,11 +97,14 @@ impl Client for SshUser {
         return Ok(files)
     }
 
-    fn query_file_uuid(&mut self, target: String) -> Result<String , RedError> {
-        Err(RedError::OtherError("Not implemented"))
+    fn query_file_uuid(&mut self, target: String) -> Result<String, RedError> {
+        Ok(self.available_files.get(&target).ok_or_else(|| RedError::UserError)?.to_string())
     }
 
     fn read_file_content(&mut self, target: String) -> Result<String, RedError> {
-        Err(RedError::OtherError("Not implemented"))
+        let filename = self.available_files.get(&target).ok_or_else(|| RedError::UserError)?;
+        let filepath = self.get_full_path_to(filename.into());
+        let content = self.build_new_connection()?.read_file_content(filepath.as_str())?;
+        Ok(content)
     }
 }
