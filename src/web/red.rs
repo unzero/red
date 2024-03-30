@@ -1,7 +1,7 @@
 use actix_web::Result;
 use uuid::Uuid;
 use actix_identity::Identity;
-use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
+use actix_web::{HttpMessage, HttpRequest, HttpResponse}; 
 use tera::Context;
 
 use crate::{lib::user::new_client, web::errors::RedHttpError};
@@ -107,8 +107,7 @@ pub async fn open_file(target: actix_web::web::Json<Redfile>,
         _ => {
             Ok(HttpResponse::Forbidden().finish())
         },
-    }
-    
+    }  
 }
 
 pub async fn change_directory(target: actix_web::web::Json<Redfile>,
@@ -118,7 +117,7 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
         Some(id) => {
             let uuid_str = id.id().unwrap();
             let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-                .change_directory(target.get_uuid());
+                .change_directory(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
             Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
         },
         _ => {

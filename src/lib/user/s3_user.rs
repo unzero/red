@@ -40,4 +40,8 @@ impl Client for S3User {
     fn read_file_content(&mut self, target: String) -> Result<String, RedError> {
         Err(RedError::OtherError("We cannot suport S3 yet."))
     }
+
+    fn change_directory(&mut self, target: String) -> Result<Vec<HashMap<String, String>>, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }

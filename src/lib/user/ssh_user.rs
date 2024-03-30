@@ -107,4 +107,8 @@ impl Client for SshUser {
         let content = self.build_new_connection()?.read_file_content(filepath.as_str())?;
         Ok(content)
     }
+
+    fn change_directory(&mut self, target: String) -> Result<Vec<HashMap<String, String>>, RedError> {
+        Err(RedError::OtherError("Not implemented yet."))
+    }
 }
