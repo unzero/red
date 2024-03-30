@@ -4,11 +4,11 @@ use actix_identity::Identity;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse}; 
 use tera::Context;
 
+use super::session;
 use crate::{lib::user::new_client, web::errors::RedHttpError};
 use crate::lib::common::RedLogin;
 use crate::lib::files::Redfile;
 use crate::lib::files;
-use super::session;
 
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
@@ -88,44 +88,30 @@ pub async fn red_logout(identity: Option<Identity>,
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
                        red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
-    match identity { 
-        Some(id) => {
-            let uuid_str = id.id().unwrap();
-            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-                .query_file_uuid(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
-            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-                .read_file_content(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
-            let file_type = files::get_file_type(filename.clone());
-            Ok(HttpResponse::Ok().json( crate::json_response!(
-                    {
-                        "file-content": file_content, 
-                        "file-type": file_type,
-                        "filename": filename,
-                        "file-uuid": target.get_uuid()
-                    }
+    let uuid_str = session::validate_session(identity)?;
+    let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+        .query_file_uuid(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+    let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+        .read_file_content(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+    let file_type = files::get_file_type(filename.clone());
+    Ok(HttpResponse::Ok().json( crate::json_response!(
+        {
+            "file-content": file_content, 
+            "file-type": file_type,
+            "filename": filename,
+            "file-uuid": target.get_uuid()
+        }
 
-                )))
-        },
-        _ => {
-            Ok(HttpResponse::Forbidden().finish())
-        },
-    }  
+    )))
 }
 
 pub async fn change_directory(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
                        red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
-    match identity { 
-        Some(id) => {
-            let uuid_str = id.id().unwrap();
-            let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-                .change_directory(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
-            Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
-        },
-        _ => {
-            Ok(HttpResponse::Forbidden().finish())
-        },
-    }
+    let uuid_str = session::validate_session(identity)?;
+    let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+        .change_directory(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+    Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
 }
 
 /*
