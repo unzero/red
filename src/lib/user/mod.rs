@@ -7,7 +7,7 @@ mod s3_user;
 
 use std::collections::HashMap;
 
-use crate::web::red::RedLogin;
+use crate::lib::common::RedLogin;
 use crate::lib::errors::RedError;
 
 use self::ssh_user::SshUser;

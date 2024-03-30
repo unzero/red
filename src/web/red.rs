@@ -1,19 +1,10 @@
-use env_logger::fmt;
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use actix_identity::Identity;
 use actix_web::{cookie::Display, HttpMessage, HttpRequest, HttpResponse}; 
 use tera::Context;
 
 use crate::{lib::user::new_client, web::errors::RedHttpError};
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct RedLogin{
-    pub host: String,
-    pub username: String,
-    //TODO: hash the password to protect it 
-    pub password: String,
-}
+use crate::lib::common::RedLogin;
 
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
