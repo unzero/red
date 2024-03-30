@@ -48,4 +48,8 @@ impl Client for S3User {
     fn create_new_file(&mut self, target: String) -> Result<String, RedError> {
         Err(RedError::OtherError("We cannot suport S3 yet."))
     }
+
+    fn save_file(&mut self, file_uuid: String, file_content: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }

@@ -131,4 +131,8 @@ impl Client for SshUser {
         self.available_files.insert(file_uuid.clone(), target);
         Ok(file_uuid)
     }
+
+    fn save_file(&mut self, file_uuid: String, file_content: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }

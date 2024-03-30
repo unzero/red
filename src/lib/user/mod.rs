@@ -23,6 +23,7 @@ pub trait Client {
     fn query_file_uuid(&mut self, target: String) -> Result<String , RedError>;
     fn change_directory(&mut self, target: String) -> Result<Vec<HashMap<String, String>>, RedError>;
     fn create_new_file(&mut self, target: String) -> Result<String, RedError>;
+    fn save_file(&mut self, file_uuid: String, file_content: String) -> Result<String, RedError>;
 }
 
 pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + Send>, RedError> {
