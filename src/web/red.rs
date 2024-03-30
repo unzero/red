@@ -71,6 +71,7 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
 
 pub async fn red_logout(identity: Option<Identity>,
                         red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
+    // TODO we can replace the match with one ok_or_else for Option<>
     match identity {
         Some(id) => {
             let uuid_str = id.id().unwrap();
