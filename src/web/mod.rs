@@ -26,7 +26,6 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(red_logout)),
     );
 
-    
     cfg.service(
         web::resource("/open_file")
             .route(web::post().to(open_file)),
@@ -37,18 +36,16 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(change_directory)),
     );
 
-       /* 
     cfg.service(
         web::resource("/new_file")
             .route(web::post().to(new_file)),
     );
 
-    
+    /*    
     cfg.service(
         web::resource("/save_file")
             .route(web::post().to(save_file)),
     );*/
-
 }
 
 
