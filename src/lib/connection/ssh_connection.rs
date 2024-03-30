@@ -47,4 +47,17 @@ impl Connection for SshConnection {
         remote_file.wait_close().map_err(|_e| RedError::ConnectionError )?;
         Ok(String::from_utf8(contents).map_err(|_e| RedError::ConnectionError )?)
     }
+
+    fn save_file(&self, filepath: &str, file_content: &str) -> Result<String, RedError>{
+        let u8_file_content = file_content.as_bytes(); 
+        let file_content_size = file_content.len() as u64;
+        let mut remote_file = self.session.scp_send(Path::new(filepath), 0o644, file_content_size, None)
+            .map_err( |_e| RedError::FileError )?;
+        remote_file.write(u8_file_content).map_err( |_e| RedError::FileError )?;
+        remote_file.send_eof().map_err( |_e| RedError::FileError )?;
+        remote_file.wait_eof().map_err( |_e| RedError::FileError )?;
+        remote_file.close().map_err( |_e| RedError::FileError )?;
+        remote_file.wait_close().map_err( |_e| RedError::FileError )?;
+        Ok(String::from("Successfully saved."))
+    }
 }
