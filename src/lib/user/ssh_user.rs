@@ -42,6 +42,13 @@ impl SshUser {
             .map_err( |_e| RedError::ConnectionError )?;
         Ok(conn)
     }
+
+    pub fn execute_cd(&mut self, location: String) -> Result<(), RedError> {
+        let cmd = format!("cd {}; cd {}; pwd", self.current_path, location);
+        let partial_result = self.execute(&cmd.to_owned())?;
+        self.current_path = partial_result.replace("\n", "");
+        Ok(())
+    }
 }
 
 impl Client for SshUser {
@@ -109,6 +116,9 @@ impl Client for SshUser {
     }
 
     fn change_directory(&mut self, target: String) -> Result<Vec<HashMap<String, String>>, RedError> {
-        Err(RedError::OtherError("Not implemented yet."))
+        let filename = self.available_files.get(&target).ok_or_else(|| RedError::UserError)?;
+        self.execute_cd(filename.into())?;
+        Ok(self.get_files()?)        
     }
+
 }
