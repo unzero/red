@@ -133,8 +133,8 @@ impl Client for SshUser {
     }
 
     fn save_file(&mut self, file_uuid: String, file_content: String) -> Result<String, RedError> {
-        let filename = self.available_files.get(&file_uuid).ok_or_else(|| RedError::UserError)?;
+        let filename = self.available_files.get(&file_uuid).ok_or_else(|| RedError::UserError)?.to_string();
         let conn = self.build_new_connection()?;
-        Ok(conn.save_file(filename, file_content.as_str())?)
+        Ok(conn.save_file(self.get_full_path_to(filename).as_str(), file_content.as_str())?)
     }
 }

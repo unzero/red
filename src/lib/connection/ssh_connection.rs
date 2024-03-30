@@ -1,6 +1,7 @@
 use std::net::TcpStream;
-use ssh2::Session;
 use std::{io::prelude::*, path::Path};
+use ssh2::Session;
+use log;
 
 use super::Connection;
 use crate::lib::errors::RedError;
@@ -49,6 +50,7 @@ impl Connection for SshConnection {
     }
 
     fn save_file(&self, filepath: &str, file_content: &str) -> Result<String, RedError>{
+        log::debug!("Writting {:?} with content {:?}", filepath, file_content);
         let u8_file_content = file_content.as_bytes(); 
         let file_content_size = file_content.len() as u64;
         let mut remote_file = self.session.scp_send(Path::new(filepath), 0o644, file_content_size, None)
