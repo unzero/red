@@ -21,6 +21,10 @@ impl RedHttpError {
     pub fn default_error() -> Self {
         Self { error: "Something gone wrong, try again".into() }
     }
+
+    pub fn session_error() -> Self {
+        Self { error: "You don't have the right permisions for this.".into() }
+    }
 }
 
 impl ResponseError for RedHttpError {}

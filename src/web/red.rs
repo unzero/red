@@ -127,18 +127,17 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     }
 }
 
-/*
-
-fn get_user_uuid(identity: Option<Identity>) -> String {
-    match identity {
-        Some(id) => id.id().unwrap(),
-        _ => return "".into()
-    }
+fn validate_session(identity: Option<Identity>) -> Result<String, RedHttpError> {
+    let uuid = identity.ok_or_else(|| RedHttpError::session_error() )?
+        .id().map_err(|_e| RedHttpError::session_error() )?;
+    Ok(uuid)
 }
+
+/*
 
 pub async fn new_file(target: actix_web::web::Json<Redfile>, 
                       identity: Option<Identity>, 
-                      red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+                      red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     let user_uuid = get_user_uuid(identity);
     if user_uuid.is_empty() {
         return HttpResponse::Forbidden().finish()
@@ -148,6 +147,8 @@ pub async fn new_file(target: actix_web::web::Json<Redfile>,
     let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap().execute_file();
     HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files}) )
 }
+
+
 
 pub async fn save_file(target: actix_web::web::Json<Redfile>, 
                         identity: Option<Identity>, 
