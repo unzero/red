@@ -16,3 +16,13 @@ impl Redfile {
     }
 }
 
+pub fn get_file_type(filename: String) -> String {
+    let ext = std::path::Path::new(&filename).
+                extension().and_then(std::ffi::OsStr::to_str).unwrap_or("text");
+    match ext { 
+        "py" => String::from("python"),
+        "rs" => String::from("rust"),
+        "js" => String::from("javascript"),
+        _ => String::from(ext)
+    }
+}

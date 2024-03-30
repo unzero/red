@@ -12,7 +12,7 @@ use std::{sync::{Arc, Mutex}, collections::HashMap};
 mod web;
 mod lib;
 
-use crate::lib::clients::RedUsers;
+use crate::lib::common::RedUsers;
 
 const COOKIE_LIFETIME: Duration = Duration::minutes(5);
 
@@ -49,4 +49,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
