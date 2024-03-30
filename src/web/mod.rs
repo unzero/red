@@ -41,11 +41,10 @@ pub fn get_configuration(cfg: &mut web::ServiceConfig) {
             .route(web::post().to(new_file)),
     );
 
-    /*    
     cfg.service(
         web::resource("/save_file")
             .route(web::post().to(save_file)),
-    );*/
+    );
 }
 
 
