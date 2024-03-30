@@ -1,6 +1,7 @@
 pub mod red;
 pub mod utils;
 mod errors;
+mod session;
 
 //within this file I put all logic for web application
 use actix_web::web;

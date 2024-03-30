@@ -8,6 +8,7 @@ use crate::{lib::user::new_client, web::errors::RedHttpError};
 use crate::lib::common::RedLogin;
 use crate::lib::files::Redfile;
 use crate::lib::files;
+use super::session;
 
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
@@ -125,12 +126,6 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
             Ok(HttpResponse::Forbidden().finish())
         },
     }
-}
-
-fn validate_session(identity: Option<Identity>) -> Result<String, RedHttpError> {
-    let uuid = identity.ok_or_else(|| RedHttpError::session_error() )?
-        .id().map_err(|_e| RedHttpError::session_error() )?;
-    Ok(uuid)
 }
 
 /*
