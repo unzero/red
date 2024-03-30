@@ -121,4 +121,7 @@ impl Client for SshUser {
         Ok(self.get_files()?)        
     }
 
+    fn create_new_file(&mut self, target: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }

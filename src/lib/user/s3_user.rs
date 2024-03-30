@@ -44,4 +44,8 @@ impl Client for S3User {
     fn change_directory(&mut self, target: String) -> Result<Vec<HashMap<String, String>>, RedError> {
         Err(RedError::OtherError("We cannot suport S3 yet."))
     }
+
+    fn create_new_file(&mut self, target: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }
