@@ -5,6 +5,8 @@ use tera::Context;
 
 use crate::{lib::user::new_client, web::errors::RedHttpError};
 use crate::lib::common::RedLogin;
+use crate::lib::files::Redfile;
+use crate::lib::files;
 
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
@@ -80,21 +82,18 @@ pub async fn red_logout(identity: Option<Identity>,
     Ok(redirect("/red"))
 }
 
-
-/*
-
-
-
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
-                       red_users: actix_web::web::Data<crate::RedUsers>) -> HttpResponse {
+                       red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     match identity { 
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().query_file_uuid(target.get_uuid());
-            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap().read_file_content(target.get_uuid());
-            let file_type = get_file_type(filename.clone());
-            HttpResponse::Ok().json( crate::json_response!(
+            let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+                .query_file_uuid(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+            let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
+                .read_file_content(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+            let file_type = files::get_file_type(filename.clone());
+            Ok(HttpResponse::Ok().json( crate::json_response!(
                     {
                         "file-content": file_content, 
                         "file-type": file_type,
@@ -102,14 +101,16 @@ pub async fn open_file(target: actix_web::web::Json<Redfile>,
                         "file-uuid": target.get_uuid()
                     }
 
-                ))
+                )))
         },
         _ => {
-            HttpResponse::Forbidden().finish()
+            Ok(HttpResponse::Forbidden().finish())
         },
     }
     
 }
+
+/*
 
 pub async fn change_directory(target: actix_web::web::Json<Redfile>,
                        identity: Option<Identity>, 
@@ -127,16 +128,7 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
     
 }
 
-fn get_file_type(filename: String) -> String {
-    let ext = std::path::Path::new(&filename).
-                extension().and_then(std::ffi::OsStr::to_str).unwrap_or("text");
-    match ext { 
-        "py" => String::from("python"),
-        "rs" => String::from("rust"),
-        "js" => String::from("javascript"),
-        _ => String::from(ext)
-    }
-}
+
 
 fn get_user_uuid(identity: Option<Identity>) -> String {
     match identity {

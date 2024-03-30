@@ -33,4 +33,11 @@ impl Client for S3User {
         Err(RedError::OtherError("We cannot support S3 yet."))
     }
 
+    fn query_file_uuid(&mut self, target: String) -> Result<String , RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
+
+    fn read_file_content(&mut self, target: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("We cannot suport S3 yet."))
+    }
 }

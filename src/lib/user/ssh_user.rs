@@ -90,4 +90,12 @@ impl Client for SshUser {
             }
         return Ok(files)
     }
+
+    fn query_file_uuid(&mut self, target: String) -> Result<String , RedError> {
+        Err(RedError::OtherError("Not implemented"))
+    }
+
+    fn read_file_content(&mut self, target: String) -> Result<String, RedError> {
+        Err(RedError::OtherError("Not implemented"))
+    }
 }
