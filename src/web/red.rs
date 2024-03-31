@@ -85,7 +85,7 @@ pub async fn red_logout(identity: Option<Identity>,
         },
         _ => {},
     }
-    Ok(redirect("/red"))
+    Ok(redirect("/"))
 }
 
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
