@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, collections::HashMap, string::String};
+use std::{collections::HashMap, string::String};
 
 #[macro_export]
 macro_rules! context {
@@ -14,12 +14,13 @@ macro_rules! json_response {
     }
 }
 
+#[warn(dead_code)]
 pub fn get_dummy_files(size: usize) -> Vec<HashMap<String, String>> {
     let mut files = vec![];
     let types = vec!["directory", "file"];
-    for i in 1..size {
+    for i in 0..size {
         files.push( HashMap::from([
-            (String::from("name"), String::from("This is a test")),
+            (String::from("name"), String::from("This is a testxxxxxxxxxxxxxxxxxxxxxx")),
             (String::from("type"), String::from(types[i%2])),
             (String::from("uuid"), "0x0000".to_string()),
             ]));

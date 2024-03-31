@@ -13,64 +13,40 @@
 
     <link rel="stylesheet" href="/static/home.css">
     <style>
-        .red-dropdown-menu {
-            position: fixed !important;
-            top: 0 !important;
+        .red-ofiles-navbar { 
+            overflow-x: auto;
+            scrollbar-width: thin;
         }
+
+        .red-file-button {
+            border-radius: 0;
+            text-wrap: nowrap;
+        }
+
+        .red-nav-btn { 
+            border-radius: 0;
+        }
+        .red-active-btn {
+            background: #198754;
+        }
+        
+        .red-container {
+            max-width: 85vw;
+        }
+    
     </style>
 
 {% endblock header%}
 
 {% block content %}
+<body>
+    {% include "components/overlay.html" %}
+    {% include "components/new_file_modal.html" %}
+    {% include "components/icons.html" %}
 
-    <div class="overlay" id="loading_layout" hidden>
-        <div class="position-absolute top-50 start-50 translate-middle"> 
-        <div class="spinner-grow text-dark" role="status">
-            <span class="visually-hidden"></span>
-        </div>
-        <div class="spinner-grow text-dark" role="status">
-            <span class="visually-hidden"></span>
-        </div>
-        <div class="spinner-grow text-dark" role="status">
-            <span class="visually-hidden"></span>
-        </div>
-        </div>
-    </div>
-
-    <!-- New file modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create new file</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="lbl_new_filename" class="form-label">Filename</label>
-                        <input type="text" class="form-control" id="new_filename" aria-describedby="new_filename">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="loading_call('new_file')">Create</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
-      <symbol id="directory" width="16" height="16">
-        <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/>
-      </symbol>
-      <symbol id="file" width="16" height="16">
-        <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5z"/>
-        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
-      </symbol>
-    </svg>
-
-    <nav class="navbar bg-dark border-bottom border-bottom-dark fix-top p-1" data-bs-theme="dark">
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fix-top p-1 red-navbar red-navbar-t" data-bs-theme="dark">
         <div class="container-fluid">
-            <a class="navbar-brand">Red Ssh</a>
+            <a class="navbar-brand" href="/">Red Editor</a>
 
             <div class="dropdown d-flex">
                 <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -87,21 +63,23 @@
         </div>
     </nav>
 
-    <div class="row">
-        <div class="d-flex flex-column flex-shrink-0 p-2 text-bg-dark col-2 overflow-y-auto" style="height: 90vh;" id="div_files">
+    <main class="d-flex flex-nowrap">
+
+        <div class="d-flex flex-column text-bg-dark red-files-navbar" id="div_files">
             <ul class="nav flex-column" id="ul_files"></ul>
         </div>
         
-        <div class="col-10 p-0" id="tabs_div">
-            <div class="d-flex overflow-x-auto" id="open_files_nav" role="tablist"></div>
-            <div class="tab-content" id="open_files_tab"></div>
+        <div class="container-fluid p-0 red-container">
+            <div class="d-flex flex-row red-ofiles-navbar" id="open_files_nav" role="tablist"></div>  
+            <div class="container-fluid tab-content p-0" id="open_files_tab"></div>
         </div>
-    </div>
 
-    <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom p-0" data-bs-theme="dark">
+    </main>
+
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom p-0 red-navbar-b" data-bs-theme="dark">
         <h6 class="navbar-text p-1 m-0 text-white">Connected to {{host}} as {{user}}.</h6>
-    </nav>
-
+    </nav> 
+</body>
 {% endblock content %}
 
 
@@ -120,27 +98,23 @@
 
         update_div_files(files);
 
-
-
-/*
-        for( var i = 0 ; i < 5; ++i){
-            var tab_id = `tab_file_${i}`;
-            $('#open_files_tab').append(build_file_tab(tab_id));
-            $('#open_files_nav').append(build_file_nav(i, 'abc'+i));
-        }
-            
-       
-        var tab_id = `tab_file_0`;
-        var editor = monaco.editor.create(document.getElementById(tab_id), {
-            value: 'xxxxxxxxxxx',
-            fontSize: 16,
-            language: 'java',
-            automaticLayout: true,
-            theme: 'vs-dark'
-        });
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         
-        $(`#${tab_id}`).data('editor', editor);
-*/
+        
+        /*
+        for( var i = 0 ; i < 3; ++i){
+            load_file(
+                {
+                    'file-uuid': `0x00${i}`,
+                    'filename': `File ${i}`,
+                    'file-content': `Hello ${i}`,
+                    'file-type': 'py'
+                }
+
+            );
+        }
+        */        
     });
 
     function update_div_files(files){
@@ -162,10 +136,10 @@
         });
         $('#ul_files').html(new_content);
     }
-
+    
     function build_file_li(config, file){
-        return `<li class="nav-item">
-        <a class="nav-link d-flex icon-link icon-link-hover ${config['class']} file_item" 
+        return `<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="${file['name']}"> 
+        <a class="nav-link icon-link icon-link-hover ${config['class']} red-file-item" 
         href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
             <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
             ${file['name']}
@@ -189,17 +163,15 @@
         if( editor_open.length > 0 ){
             remove_active_states();
             editor_open.addClass('active'); 
-            editor_open.addClass('show'); 
-            $(`#btn_file_${uuid}`).addClass('btn-primary');
-            $(`#btn_drd_${uuid}`).addClass('btn-primary');
+            editor_open.addClass('show');
             return true;
         }
         return false;
     }
 
     function remove_active_states(){
-        remove_from_classlist('btn_file_', ['active', 'btn-primary']);
-        remove_from_classlist('btn_drd_', ['btn-primary']);
+        remove_from_classlist('btn_file_', ['active']);
+        remove_from_classlist('btn_drd_', ['active']);
         remove_from_classlist('tab_file_', ['active', 'show']);
     }
 
@@ -230,18 +202,18 @@
     }
 
     function build_file_tab(tab_id){
-        return `<div class="tab-pane fade show active" id="${tab_id}" style="width: 100vh; height: 90vh;"
+        return `<div class="tab-pane fade show active vh-100" id="${tab_id}"
             role="tabpanel" aria-labelledby="${tab_id}" tabindex="0"></div>`
     }
 
     function build_file_nav(file_uuid, filename){
         return `
-        <div class="btn-group" id="btn_group_${file_uuid}">
-            <button type="button" class="btn btn-primary btn-sm text-wrap" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
-                    role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
+        <div class="btn-group" id="btn_group_${file_uuid}" onclick="javascript:change_drd_active(this)">
+            <button type="button" class="btn btn-dark red-file-button" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
+                    style="width: 100px;" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
                 ${filename}
             </button>
-            <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" 
+            <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split red-file-button" 
                 id="btn_drd_${file_uuid}" data-bs-toggle="dropdown" aria-expanded="false"></button>
             <ul class="dropdown-menu red-dropdown-menu">
                 <li><a class="dropdown-item" href="javascript:save_file('${file_uuid}')">Save</a></li>
@@ -310,6 +282,10 @@
         });
     }
 
+    function change_drd_active(group, button){
+        remove_from_classlist('btn_drd_', ['active']);
+        $(`#${group.id} button`).addClass('active');
+    }
 </script>
 {% endblock scripts %}
 

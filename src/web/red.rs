@@ -5,6 +5,7 @@ use actix_web::{HttpMessage, HttpRequest, HttpResponse};
 use tera::Context;
 
 use super::session;
+use super::utils;
 use crate::{lib::user::new_client, web::errors::RedHttpError};
 use crate::lib::common::RedLogin;
 use crate::lib::files::Redfile;
@@ -65,7 +66,9 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
                 "host": host, "user": user, "files": files}), templates))
         },
         _ => {
-            Ok(redirect("/"))
+            /*Ok(redirect("/"));*/
+            Ok(render_template("red/home.html", crate::context!({"identity": "test", 
+                "host": "test", "user": "test", "files": utils::get_dummy_files(25)}), templates))
         }
     }
 }
@@ -82,7 +85,7 @@ pub async fn red_logout(identity: Option<Identity>,
         },
         _ => {},
     }
-    Ok(redirect("/red"))
+    Ok(redirect("/"))
 }
 
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
