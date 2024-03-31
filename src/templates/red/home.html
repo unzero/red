@@ -13,6 +13,27 @@
 
     <link rel="stylesheet" href="/static/home.css">
     <style>
+        .red-ofiles-navbar { 
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .red-file-button {
+            border-radius: 0;
+            text-wrap: nowrap;
+        }
+
+        .red-nav-btn { 
+            border-radius: 0;
+        }
+        .red-active-btn {
+            background: #198754;
+        }
+        
+        .red-container {
+            max-width: 85vw;
+        }
+    
     </style>
 
 {% endblock header%}
@@ -48,8 +69,8 @@
             <ul class="nav flex-column" id="ul_files"></ul>
         </div>
         
-        <div class="container-fluid p-0">
-            <div class="d-flex overflow-x-auto" id="open_files_nav" role="tablist"></div>
+        <div class="container-fluid p-0 red-container">
+            <div class="d-flex flex-row red-ofiles-navbar" id="open_files_nav" role="tablist"></div>  
             <div class="container-fluid tab-content p-0" id="open_files_tab"></div>
         </div>
 
@@ -79,26 +100,21 @@
 
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
-
-        for( var i = 0 ; i < 5; ++i){
-            var tab_id = `tab_file_${i}`;
-            $('#open_files_tab').append(build_file_tab(tab_id));
-            $('#open_files_nav').append(build_file_nav(i, 'abc'+i));
-        }
-            
-       
-        var tab_id = `tab_file_0`;
-        var editor = monaco.editor.create(document.getElementById(tab_id), {
-            value: 'xxxxxxxxxxx',
-            fontSize: 16,
-            language: 'java',
-            automaticLayout: true,
-            theme: 'vs-dark'
-        });
         
-        $(`#${tab_id}`).data('editor', editor);
+        
+        /*
+        for( var i = 0 ; i < 3; ++i){
+            load_file(
+                {
+                    'file-uuid': `0x00${i}`,
+                    'filename': `File ${i}`,
+                    'file-content': `Hello ${i}`,
+                    'file-type': 'py'
+                }
 
+            );
+        }
+        */        
     });
 
     function update_div_files(files){
@@ -120,7 +136,7 @@
         });
         $('#ul_files').html(new_content);
     }
-    /*        data-bs-custom-class="custom-tooltip */
+    
     function build_file_li(config, file){
         return `<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="${file['name']}"> 
         <a class="nav-link icon-link icon-link-hover ${config['class']} red-file-item" 
@@ -129,7 +145,7 @@
             ${file['name']}
         </a>
         </li>`;
-    }e
+    }
 
     function open_file(uuid){
         if( is_already_open(uuid) ){ 
@@ -147,17 +163,15 @@
         if( editor_open.length > 0 ){
             remove_active_states();
             editor_open.addClass('active'); 
-            editor_open.addClass('show'); 
-            $(`#btn_file_${uuid}`).addClass('btn-primary');
-            $(`#btn_drd_${uuid}`).addClass('btn-primary');
+            editor_open.addClass('show');
             return true;
         }
         return false;
     }
 
     function remove_active_states(){
-        remove_from_classlist('btn_file_', ['active', 'btn-primary']);
-        remove_from_classlist('btn_drd_', ['btn-primary']);
+        remove_from_classlist('btn_file_', ['active']);
+        remove_from_classlist('btn_drd_', ['active']);
         remove_from_classlist('tab_file_', ['active', 'show']);
     }
 
@@ -194,12 +208,12 @@
 
     function build_file_nav(file_uuid, filename){
         return `
-        <div class="btn-group" id="btn_group_${file_uuid}">
-            <button type="button" class="btn btn-primary btn-sm text-wrap" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
-                    role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
+        <div class="btn-group" id="btn_group_${file_uuid}" onclick="javascript:change_drd_active(this)">
+            <button type="button" class="btn btn-dark red-file-button" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
+                    style="width: 100px;" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
                 ${filename}
             </button>
-            <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" 
+            <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split red-file-button" 
                 id="btn_drd_${file_uuid}" data-bs-toggle="dropdown" aria-expanded="false"></button>
             <ul class="dropdown-menu red-dropdown-menu">
                 <li><a class="dropdown-item" href="javascript:save_file('${file_uuid}')">Save</a></li>
@@ -268,6 +282,10 @@
         });
     }
 
+    function change_drd_active(group, button){
+        remove_from_classlist('btn_drd_', ['active']);
+        $(`#${group.id} button`).addClass('active');
+    }
 </script>
 {% endblock scripts %}
 
