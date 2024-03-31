@@ -68,7 +68,7 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
         _ => {
             /*Ok(redirect("/"));*/
             Ok(render_template("red/home.html", crate::context!({"identity": "test", 
-                "host": "test", "user": "test", "files": utils::get_dummy_files(2)}), templates))
+                "host": "test", "user": "test", "files": utils::get_dummy_files(25)}), templates))
         }
     }
 }

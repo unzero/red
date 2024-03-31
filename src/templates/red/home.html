@@ -77,6 +77,9 @@
 
         update_div_files(files);
 
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 
         for( var i = 0 ; i < 5; ++i){
             var tab_id = `tab_file_${i}`;
@@ -117,16 +120,16 @@
         });
         $('#ul_files').html(new_content);
     }
-
+    /*        data-bs-custom-class="custom-tooltip */
     function build_file_li(config, file){
-        return `<li class="nav-item">
-        <a class="nav-link d-flex icon-link icon-link-hover ${config['class']} red-file-item" 
+        return `<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="${file['name']}"> 
+        <a class="nav-link icon-link icon-link-hover ${config['class']} red-file-item" 
         href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
             <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
             ${file['name']}
         </a>
         </li>`;
-    }
+    }e
 
     function open_file(uuid){
         if( is_already_open(uuid) ){ 
