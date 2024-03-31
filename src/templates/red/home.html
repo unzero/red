@@ -17,12 +17,35 @@
             position: fixed !important;
             top: 0 !important;
         }
+
+        .red-files-navbar {
+            overflow-y: auto;
+            overflow-x: hidden;
+            width: 15vw;
+        }
+
+        main {
+            height: 80vh;
+            height: -webkit-fill-available;
+            max-height: 90vh;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .red-navbar-b {
+            height: 4vh;
+        }
+
+        .red-navbar-t {
+            height: 6vh;
+        }
+
     </style>
 
 {% endblock header%}
 
 {% block content %}
-
+<body>
     <div class="overlay" id="loading_layout" hidden>
         <div class="position-absolute top-50 start-50 translate-middle"> 
         <div class="spinner-grow text-dark" role="status">
@@ -68,7 +91,7 @@
       </symbol>
     </svg>
 
-    <nav class="navbar bg-dark border-bottom border-bottom-dark fix-top p-1" data-bs-theme="dark">
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fix-top p-1 red-navbar red-navbar-t" data-bs-theme="dark">
         <div class="container-fluid">
             <a class="navbar-brand">Red Ssh</a>
 
@@ -87,21 +110,42 @@
         </div>
     </nav>
 
-    <div class="row">
-        <div class="d-flex flex-column flex-shrink-0 p-2 text-bg-dark col-2 overflow-y-auto" style="height: 90vh;" id="div_files">
-            <ul class="nav flex-column" id="ul_files"></ul>
-        </div>
-        
-        <div class="col-10 p-0" id="tabs_div">
-            <div class="d-flex overflow-x-auto" id="open_files_nav" role="tablist"></div>
-            <div class="tab-content" id="open_files_tab"></div>
-        </div>
+    <main class="d-flex flex-nowrap">
+
+    <div class="d-flex flex-column text-bg-dark red-files-navbar" id="div_files">
+        <ul class="nav flex-column" id="ul_files"></ul>
+    </div>
+    
+    <div class="container-fluid" style="background-color: aqua;">
+        a
     </div>
 
-    <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom p-0" data-bs-theme="dark">
-        <h6 class="navbar-text p-1 m-0 text-white">Connected to {{host}} as {{user}}.</h6>
-    </nav>
 
+    
+
+    <!--
+    <div class="container-fluid">
+
+
+        
+
+        <div class="row">
+            
+            
+            
+            <div class="col-10 p-0" id="tabs_div">
+                <div class="d-flex overflow-x-auto" id="open_files_nav" role="tablist"></div>
+                <div class="tab-content" id="open_files_tab"></div>
+            </div>
+        </div>
+    </div>
+     col-2 text-bg-dark vh-100 d-inline-block -->
+    </main>
+
+    <nav class="navbar bg-dark border-bottom border-bottom-dark fixed-bottom p-0 red-navbar-b" data-bs-theme="dark">
+        <h6 class="navbar-text p-1 m-0 text-white">Connected to {{host}} as {{user}}.</h6>
+    </nav> 
+</body>
 {% endblock content %}
 
 
@@ -164,8 +208,13 @@
     }
 
     function build_file_li(config, file){
+        /*
+        return `<a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+            ${file['name']}   
+        `;*/
+        
         return `<li class="nav-item">
-        <a class="nav-link d-flex icon-link icon-link-hover ${config['class']} file_item" 
+        <a class="nav-link d-flex icon-link icon-link-hover ${config['class']} red-file-item" 
         href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
             <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
             ${file['name']}

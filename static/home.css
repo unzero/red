@@ -1,4 +1,8 @@
-.file_item:hover { 
+.red-file-item {
+    text-wrap: nowrap;
+}
+
+.red-file-item:hover { 
     background-color: #198754;
 }
 

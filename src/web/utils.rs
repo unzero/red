@@ -20,7 +20,7 @@ pub fn get_dummy_files(size: usize) -> Vec<HashMap<String, String>> {
     let types = vec!["directory", "file"];
     for i in 1..size {
         files.push( HashMap::from([
-            (String::from("name"), String::from("This is a test")),
+            (String::from("name"), String::from("This is a testxxxxxxxxxxxxxxxxxxxxxx")),
             (String::from("type"), String::from(types[i%2])),
             (String::from("uuid"), "0x0000".to_string()),
             ]));
