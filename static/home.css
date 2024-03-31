@@ -15,3 +15,29 @@
     background-color: #858585;
 }
 
+.red-dropdown-menu {
+    position: fixed !important;
+    top: 0 !important;
+}
+
+.red-files-navbar {
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 15vw;
+}
+
+main {
+    height: 80vh;
+    height: -webkit-fill-available;
+    max-height: 90vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.red-navbar-b {
+    height: 4vh;
+}
+
+.red-navbar-t {
+    height: 6vh;
+}
