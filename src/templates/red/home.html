@@ -102,7 +102,8 @@
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         
         
-        /*
+        
+        //This code generates mock open files for testing
         for( var i = 0 ; i < 3; ++i){
             load_file(
                 {
@@ -114,7 +115,7 @@
 
             );
         }
-        */        
+               
     });
 
     function update_div_files(files){
@@ -139,7 +140,7 @@
     
     function build_file_li(config, file){
         return `<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="${file['name']}"> 
-        <a class="nav-link icon-link icon-link-hover ${config['class']} red-file-item" 
+        <a class="nav-link d-flex icon-link icon-link-hover ${config['class']} red-file-item" 
         href="javascript:loading_call('${config['to_call']}', '${file['uuid']}')">
             <svg class="bi" width="16" height="16"><use xlink:href="${config['icon']}"/></svg>
             ${file['name']}
@@ -164,6 +165,8 @@
             remove_active_states();
             editor_open.addClass('active'); 
             editor_open.addClass('show');
+            $(`#btn_file_${uuid}`).addClass('active');
+            $(`#btn_drd_${uuid}`).addClass('active');
             return true;
         }
         return false;
@@ -180,6 +183,9 @@
         var tab_id = `tab_file_${response['file-uuid']}`;
         $('#open_files_nav').append(build_file_nav(response['file-uuid'], response['filename']));
         $('#open_files_tab').append(build_file_tab(tab_id));
+
+        // Update tooltip
+        $(`#btn_group_${response['file-uuid']}`).tooltip('dispose').attr('title', `${response['filename']}`).tooltip()
 
         var editor = monaco.editor.create(document.getElementById(tab_id), {
             value: response['file-content'],
@@ -208,12 +214,13 @@
 
     function build_file_nav(file_uuid, filename){
         return `
-        <div class="btn-group" id="btn_group_${file_uuid}" onclick="javascript:change_drd_active(this)">
-            <button type="button" class="btn btn-dark red-file-button" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
+        <div class="btn-group" id="btn_group_${file_uuid}" onclick="javascript:change_drd_active(this)"
+            data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <button type="button" class="btn btn-dark red-file-button active" id="btn_file_${file_uuid}" data-bs-toggle="tab" data-bs-target="#tab_file_${file_uuid}" 
                     style="width: 100px;" role="tab" aria-controls="tab_file_${file_uuid}" aria-selected="false">
                 ${filename}
             </button>
-            <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split red-file-button" 
+            <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split red-file-button active" 
                 id="btn_drd_${file_uuid}" data-bs-toggle="dropdown" aria-expanded="false"></button>
             <ul class="dropdown-menu red-dropdown-menu">
                 <li><a class="dropdown-item" href="javascript:save_file('${file_uuid}')">Save</a></li>
