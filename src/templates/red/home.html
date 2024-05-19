@@ -99,23 +99,7 @@
         update_div_files(files);
 
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-        
-        
-        
-        //This code generates mock open files for testing
-        for( var i = 0 ; i < 3; ++i){
-            load_file(
-                {
-                    'file-uuid': `0x00${i}`,
-                    'filename': `File ${i}`,
-                    'file-content': `Hello ${i}`,
-                    'file-type': 'py'
-                }
-
-            );
-        }
-               
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))        
     });
 
     function update_div_files(files){
