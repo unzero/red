@@ -10,15 +10,16 @@ use crate::{lib::user::new_client, web::errors::RedHttpError};
 use crate::lib::common::RedLogin;
 use crate::lib::files::Redfile;
 use crate::lib::files;
+use crate::web::common;
 
 pub async fn index(templates: actix_web::web::Data<tera::Tera>,
                    identity: Option<Identity>) -> HttpResponse {
     match identity {
         Some(_) => {
-            redirect("/red")
+            common::redirect("/red")
         },
         _ => {
-            render_template("red/index.html", crate::context!({"errors": {}}), templates)
+            common::render_template("red/index.html", crate::context!({"errors": {}}), templates)
         }
     }
 }
@@ -26,25 +27,11 @@ pub async fn index(templates: actix_web::web::Data<tera::Tera>,
 pub async fn red_login(form: actix_web::web::Form<RedLogin>,
                         red_users: actix_web::web::Data<crate::RedUsers>,
                         request: HttpRequest) -> Result<HttpResponse, RedHttpError> {
-    let user = new_client("ssh", form.into_inner()).map_err( |_e| RedHttpError::new("Could not login with the given information.") )?;
+    let user = new_client("ssh", form.into_inner()).map_err( |_e| RedHttpError::LoginError )?;
     let id = Uuid::new_v4();
-    Identity::login(&request.extensions(), id.to_string()).map_err( |_e| RedHttpError::default_error())?;
-    red_users.lock().map_err( |_e| RedHttpError::default_error() )?.insert( id.to_string(), user );
-    Ok(redirect("/red"))
-}
-
-fn render_template(template_name: &str, 
-                   context: &Context, 
-                   templates: actix_web::web::Data<tera::Tera>) -> HttpResponse {
-    let template = templates.render(template_name, context).expect("Error");
-    HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(template)
-}
-
-fn redirect(location: &str) -> HttpResponse{
-    HttpResponse::Found()
-                .insert_header(( actix_web::http::header::LOCATION, location, )).body("ok")
+    Identity::login(&request.extensions(), id.to_string()).map_err( |_e| RedHttpError::Default );
+    red_users.lock().map_err( |_e| RedHttpError::Default )?.insert( id.to_string(), user );
+    Ok( common::redirect("/red") )
 }
 
 pub async fn home(templates: actix_web::web::Data<tera::Tera>, 
@@ -52,26 +39,27 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
                   identity: Option<Identity>) -> Result<HttpResponse, RedHttpError> {
     match identity {
         Some(id) => {
-            let uuid_str = id.id().map_err( |_e| RedHttpError::new("Could not get the session id"))?;
-            let files = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+            let uuid_str = id.id().map_err( |_e| RedHttpError::Default )?;
+            let files = red_users.lock().map_err( |_e| RedHttpError::Default )?
                 .get_mut(&uuid_str).unwrap()
-                .get_files().map_err( |_e| RedHttpError::default_error() )?;
+                .get_files().map_err( |_e| RedHttpError::Default )?;
 
-            let host = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+            let host = red_users.lock().map_err( |_e| RedHttpError::Default )?
                 .get(&uuid_str).unwrap().get_host();
-            let user = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+            let user = red_users.lock().map_err( |_e| RedHttpError::Default )?
                 .get(&uuid_str).unwrap().get_username();
             
-            Ok(render_template("red/home.html", crate::context!({"identity": uuid_str, 
+            Ok(common::render_template("red/home.html", crate::context!({"identity": uuid_str, 
                 "host": host, "user": user, "files": files}), templates))
         },
         _ => {
             /*Ok(redirect("/"));*/
-            Ok(render_template("red/home.html", crate::context!({"identity": "test", 
+            Ok(common::render_template("red/home.html", crate::context!({"identity": "test", 
                 "host": "test", "user": "test", "files": utils::get_dummy_files(25)}), templates))
         }
     }
 }
+
 
 pub async fn red_logout(identity: Option<Identity>,
                         red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
@@ -79,13 +67,13 @@ pub async fn red_logout(identity: Option<Identity>,
     match identity {
         Some(id) => {
             let uuid_str = id.id().unwrap();
-            let _ = red_users.lock().map_err( |_e| RedHttpError::default_error() )?
+            let _ = red_users.lock().map_err( |_e| RedHttpError::Default )?
                 .remove(&uuid_str);
             id.logout();
         },
         _ => {},
     }
-    Ok(redirect("/"))
+    Ok( common::redirect("/") )
 }
 
 pub async fn open_file(target: actix_web::web::Json<Redfile>,
@@ -93,9 +81,9 @@ pub async fn open_file(target: actix_web::web::Json<Redfile>,
                        red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     let uuid_str = session::validate_session(identity)?;
     let filename = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-        .query_file_uuid(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+        .query_file_uuid(target.get_uuid()).map_err(|_e| RedHttpError::Default )?;
     let file_content = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-        .read_file_content(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+        .read_file_content(target.get_uuid()).map_err(|_e| RedHttpError::Default )?;
     let file_type = files::get_file_type(filename.clone());
     Ok(HttpResponse::Ok().json( crate::json_response!(
         {
@@ -113,7 +101,7 @@ pub async fn change_directory(target: actix_web::web::Json<Redfile>,
                        red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
     let uuid_str = session::validate_session(identity)?;
     let files = red_users.lock().unwrap().get_mut(&uuid_str).unwrap()
-        .change_directory(target.get_uuid()).map_err(|_e| RedHttpError::default_error() )?;
+        .change_directory(target.get_uuid()).map_err(|_e| RedHttpError::Default )?;
     Ok(HttpResponse::Ok().json( crate::json_response!({"files": files})))
 }
 
@@ -123,9 +111,9 @@ pub async fn new_file(target: actix_web::web::Json<Redfile>,
     let user_uuid = session::validate_session(identity)?;
     let filename = target.get_uuid();
     let file_uuid = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
-        .create_new_file(filename).map_err(|_e| RedHttpError::default_error() )?;
+        .create_new_file(filename).map_err(|_e| RedHttpError::Default )?;
     let files = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
-        .get_files().map_err(|_e| RedHttpError::default_error() )?;
+        .get_files().map_err(|_e| RedHttpError::Default )?;
     Ok(HttpResponse::Ok().json( crate::json_response!({"file_uuid": file_uuid, "files": files})) )
 }
 
@@ -134,8 +122,8 @@ pub async fn save_file(target: actix_web::web::Json<Redfile>,
                         red_users: actix_web::web::Data<crate::RedUsers>) 
                         -> Result<HttpResponse, RedHttpError> {
     let user_uuid = session::validate_session(identity)?;
-    let content = target.get_file_content().ok_or_else(|| RedHttpError::default_error() )?;
+    let content = target.get_file_content().ok_or_else(|| RedHttpError::Default )?;
     let result = red_users.lock().unwrap().get_mut(&user_uuid).unwrap()
-                        .save_file(target.get_uuid(), content).map_err( |_e| RedHttpError::default_error() )?;
+                        .save_file(target.get_uuid(), content).map_err( |_e| RedHttpError::Default )?;
     Ok(HttpResponse::Ok().json( crate::json_response!({"message": result }) ) )
 }
