@@ -37,28 +37,35 @@ pub async fn red_login(form: actix_web::web::Form<RedLogin>,
 pub async fn home(templates: actix_web::web::Data<tera::Tera>, 
                   red_users: actix_web::web::Data<crate::RedUsers>,
                   identity: Option<Identity>) -> Result<HttpResponse, RedHttpError> {
-    
-    match identity {
-        Some(id) => {
-            let uuid_str = id.id().map_err( |_e| RedHttpError::Default )?;
-            let files = red_users.lock().map_err( |_e| RedHttpError::Default )?
-                .get_mut(&uuid_str).unwrap()
-                .get_files().map_err( |_e| RedHttpError::Default )?;
 
-            let host = red_users.lock().map_err( |_e| RedHttpError::Default )?
-                .get(&uuid_str).unwrap().get_host();
-            let user = red_users.lock().map_err( |_e| RedHttpError::Default )?
-                .get(&uuid_str).unwrap().get_username();
+    let uuid_str = session::validate_session(identity)?;
+
+    let files = red_users.lock().map_err( |_e| RedHttpError::Default )?
+        .get_mut(&uuid_str).ok_or( RedHttpError::Default )?
+        .get_files().map_err( |_e| RedHttpError::Default )?;
+
+    let host = red_users.lock().map_err( |_e| RedHttpError::Default )?
+        .get(&uuid_str).ok_or( RedHttpError::Default )?
+        .get_host();
+
+    let user = red_users.lock().map_err( |_e| RedHttpError::Default )?
+        .get(&uuid_str).ok_or( RedHttpError::Default )?
+        .get_username();
             
-            Ok(common::render_template("red/home.html", crate::context!({"identity": uuid_str, 
-                "host": host, "user": user, "files": files}), templates))
-        },
-        _ => {
-            /*Ok(redirect("/"));*/
-            Ok(common::render_template("red/home.html", crate::context!({"identity": "test", 
-                "host": "test", "user": "test", "files": utils::get_dummy_files(25)}), templates))
-        }
-    }
+    Ok( common::render_template(
+            "red/home.html", 
+            crate::context!(
+                {
+                    "identity": uuid_str, 
+                    "host": host, 
+                    "user": user, 
+                    "files": files
+                }
+            ), 
+            templates
+        )
+    )
+        
 }
 
 
