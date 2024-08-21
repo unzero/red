@@ -71,16 +71,12 @@ pub async fn home(templates: actix_web::web::Data<tera::Tera>,
 
 pub async fn red_logout(identity: Option<Identity>,
                         red_users: actix_web::web::Data<crate::RedUsers>) -> Result<HttpResponse, RedHttpError> {
-    // TODO we can replace the match with one ok_or_else for Option<>
-    match identity {
-        Some(id) => {
-            let uuid_str = id.id().unwrap();
-            let _ = red_users.lock().map_err( |_e| RedHttpError::Default )?
-                .remove(&uuid_str);
-            id.logout();
-        },
-        _ => {},
-    }
+
+    let id = identity.ok_or( RedHttpError::SessionError )?;
+    let uuid_str = id.id().map_err( |_e| RedHttpError::SessionError )?;      
+    let _ = red_users.lock().map_err( |_e| RedHttpError::Default )?
+        .remove(&uuid_str);
+    id.logout();
     Ok( common::redirect("/") )
 }
 
