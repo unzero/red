@@ -37,7 +37,7 @@ impl Connection for SshConnection {
     }
 
     fn read_file_content(&self, filepath: &str) -> Result<String, RedError> {
-        let (mut remote_file, _) = self.session.scp_recv(Path::new(filepath)).unwrap();
+        let (mut remote_file, _) = self.session.scp_recv(Path::new(filepath)).map_err( |_e| RedError::ConnectionError )?;
         /*Reading the file*/
         let mut contents = Vec::new();
         remote_file.read_to_end(&mut contents).map_err( |_e| RedError::ConnectionError )?;
