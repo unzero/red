@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+<body class="d-flex align-items-center py-4 bg-body-tertiary"> 
+    <main class="form-signin w-100 m-auto">
+        <div class="position-absolute top-50 start-50 translate-middle">
+            <h1 class="h1 mb-3">Sorry, page not found.</h1>
+            <h2 class="h2 mb-3">Redirecting to main page.</h2>
+        </div>
+    </main>
+</body>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready( function() {
+        setTimeout(
+            function() {
+                window.location.replace('/')
+            }, 
+            5000
+        );
+    });
+    
+</script>
+{% endblock scripts %}

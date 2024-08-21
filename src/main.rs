@@ -13,6 +13,7 @@ mod web;
 mod lib;
 
 use crate::lib::common::RedUsers;
+use crate::web::not_found;
 
 const COOKIE_LIFETIME: Duration = Duration::minutes(5);
 
@@ -44,6 +45,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(users_map_state.clone())
             .configure(web::get_configuration)
             .service(actix_files::Files::new("/static", "./static/").show_files_listing())
+            .default_service( actix_web::web::route().to( not_found ) )
     })
     .bind(("192.168.230.130", 8080))?
     .run()

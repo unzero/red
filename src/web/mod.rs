@@ -9,6 +9,7 @@ use actix_web::web;
 
 //each module is an application 
 use crate::web::red::*;
+pub use common::not_found;
 
 pub fn get_configuration(cfg: &mut web::ServiceConfig) {
     cfg.service(

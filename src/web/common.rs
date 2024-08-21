@@ -1,6 +1,8 @@
 use actix_web::HttpResponse;
 use tera::Context;
 
+
+
 pub fn render_template( 
     template_name: &str, 
     context: &Context, 
@@ -19,4 +21,15 @@ pub fn redirect(
     HttpResponse::Found()
     .insert_header(( actix_web::http::header::LOCATION, location, ))
     .body("ok")
+}
+
+pub async fn not_found() -> HttpResponse {
+    let templates = actix_web::web::Data::new(
+        tera::Tera::new("src/templates/**/*.html").unwrap()
+    );
+    render_template(
+        "errors/404.html", 
+        crate::context!({}), 
+        templates
+    )
 }
