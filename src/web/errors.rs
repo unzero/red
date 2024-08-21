@@ -11,6 +11,7 @@ use crate::web::common;
 #[derive(Debug)]
 pub enum RedHttpError {
     LoginError,
+    LoginInternalError,
     SessionError,
     Default,
 }
@@ -38,6 +39,11 @@ impl ResponseError for RedHttpError {
             RedHttpError::LoginError => common::render_template(
                 "red/index.html", 
                 crate::context!({"errors": vec!["login"]}), 
+                templates
+            ),
+            RedHttpError::LoginInternalError => common::render_template(
+                "red/index.html", 
+                crate::context!({"errors": vec!["internal_login"]}), 
                 templates
             ),
             _ => HttpResponse::InternalServerError().body("Something gone wrong, try again!"),

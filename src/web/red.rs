@@ -29,14 +29,15 @@ pub async fn red_login(form: actix_web::web::Form<RedLogin>,
                         request: HttpRequest) -> Result<HttpResponse, RedHttpError> {
     let user = new_client("ssh", form.into_inner()).map_err( |_e| RedHttpError::LoginError )?;
     let id = Uuid::new_v4();
-    Identity::login(&request.extensions(), id.to_string()).map_err( |_e| RedHttpError::Default );
-    red_users.lock().map_err( |_e| RedHttpError::Default )?.insert( id.to_string(), user );
+    let _ = Identity::login(&request.extensions(), id.to_string()).map_err( |_e| RedHttpError::LoginInternalError );
+    red_users.lock().map_err( |_e| RedHttpError::LoginInternalError )?.insert( id.to_string(), user );
     Ok( common::redirect("/red") )
 }
 
 pub async fn home(templates: actix_web::web::Data<tera::Tera>, 
                   red_users: actix_web::web::Data<crate::RedUsers>,
                   identity: Option<Identity>) -> Result<HttpResponse, RedHttpError> {
+    
     match identity {
         Some(id) => {
             let uuid_str = id.id().map_err( |_e| RedHttpError::Default )?;

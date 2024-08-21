@@ -37,6 +37,12 @@
             </div>
             {% endif %}
 
+            {% if "internal_login" in errors %}
+            <div class="alert alert-danger" role="alert" style="margin-top: 0.5rem !important">
+                Internal error, try again later. 
+            </div>
+            {% endif %}
+
         </form>
     </main>
 </body>
