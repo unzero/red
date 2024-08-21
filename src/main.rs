@@ -1,7 +1,6 @@
 //Global imports
 use actix_web::{HttpServer, App};
 use actix_web::middleware::Logger;
-use tera::Tera;
 use env_logger::Env;
 use actix_identity::IdentityMiddleware;
 use actix_session::{config::PersistentSession, storage::CookieSessionStore, SessionMiddleware};
@@ -28,7 +27,7 @@ async fn main() -> std::io::Result<()> {
     let users_map_state = actix_web::web::Data::new(red_users);
 
     HttpServer::new( move || {
-        let tera = Tera::new("src/templates/**/*.html").unwrap();
+        let tera = crate::web::utils::get_templates_route();
         App::new()
             //login 
             .wrap(Logger::default())

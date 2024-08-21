@@ -27,3 +27,7 @@ pub fn get_dummy_files(size: usize) -> Vec<HashMap<String, String>> {
     }
     files
 }
+
+pub fn get_templates_route () -> tera::Tera {
+    tera::Tera::new("src/templates/**/*.html").unwrap()   
+}

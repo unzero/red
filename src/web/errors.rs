@@ -2,7 +2,7 @@ use std::fmt;
 
 
 use actix_web::{error::ResponseError, HttpResponse};
-use tera::{Tera, Context};
+use tera::Context;
 
 
 use crate::web::common;
@@ -31,7 +31,7 @@ impl fmt::Display for RedHttpError {
 impl ResponseError for RedHttpError {
     fn error_response(&self) -> HttpResponse {
         let templates = actix_web::web::Data::new(
-            Tera::new("src/templates/**/*.html").unwrap()
+            crate::web::utils::get_templates_route()
         );
 
         match self {
