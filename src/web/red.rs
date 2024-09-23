@@ -28,7 +28,7 @@ pub async fn red_login(
     red_users: actix_web::web::Data<crate::RedUsers>,
     request: HttpRequest,
 ) -> Result<HttpResponse, RedHttpError> {
-    let user = new_client("ssh", form.into_inner()).map_err(|_e| RedHttpError::LoginError)?;
+    let user = new_client(form.into_inner()).map_err(|_e| RedHttpError::LoginError)?;
     let id = Uuid::new_v4();
     let _ = Identity::login(&request.extensions(), id.to_string())
         .map_err(|_e| RedHttpError::LoginInternalError);

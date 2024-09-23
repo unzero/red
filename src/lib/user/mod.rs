@@ -26,9 +26,9 @@ pub trait Client {
     fn save_file(&mut self, file_uuid: String, file_content: String) -> Result<String, RedError>;
 }
 
-pub fn new_client(kind: &str, client_data: RedLogin) -> Result<Box<dyn Client + Send>, RedError> {
+pub fn new_client(client_data: RedLogin) -> Result<Box<dyn Client + Send>, RedError> {
     let user: Box<dyn Client + Send>;
-    match kind {
+    match client_data.host_type.as_str() {
         "ssh" => {
             user = Box::new(SshUser::new(client_data.host, client_data.username, client_data.password)?);
         }

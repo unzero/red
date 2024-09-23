@@ -7,6 +7,7 @@ pub type RedUsers = Arc<Mutex<HashMap<String, Box<dyn Client + Send> >>>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RedLogin{
+    pub host_type: String,
     pub host: String,
     pub username: String,
     pub password: String,

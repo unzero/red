@@ -12,7 +12,15 @@
         <h3 class="h3 mb-3">Welcome to Red</h3>
 
         <form action="/red" method="post">
+
             <h1 class="h3 mb-3 fw-normal align-items-center">Enter your credentials</h1>
+
+            <div class="form-floating">
+                <select class="form-select" aria-label="Default select example" id="host_type" name="host_type"> 
+                    <option selected value="ssh">SSH</option>
+                    <option value="s3">S3</option>
+                </select>
+            </div>
 
             <div class="form-floating">
                 <input type="text" class="form-control" id="host" name="host" placeholder="Hostname">
